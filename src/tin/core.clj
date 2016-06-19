@@ -29,5 +29,5 @@
   [& args]
   (println "Hello, World!")
   (println (str/join "," (tokenize "(+ 1 2)")))
-  (println (parse "(+ 1 2)"))
+  (println (parse "(+ 1 (+ 2 3))"))
   )
