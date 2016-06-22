@@ -3,21 +3,21 @@
             [instaparse.core :as insta])
   (:gen-class))
 
-(def parse
-  (insta/parser
-   "number = #'[0-9]+'"))
+(def parse (insta/parser (slurp "src/tin/grammar.ebnf")))
+
 
 (defn evaluate
-  [[symbol value]]
-  (case symbol
-    :number (read-string value)))
+  [input]
+  (case (first input)
+    :number (read-string (second input))
+    :symbol (second input)
+    :expression (map evaluate (rest input))))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (println "Hello, World!")
-  (def input "12")
+  (def input "(+ 1 2)")
   (def parsed (parse input))
   (println parsed)
-  (println (evaluate parsed))
+  ;(println (evaluate parsed))
   )
