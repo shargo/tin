@@ -1,9 +1,16 @@
 (ns tin.core
-  (:require [clojure.string :as str]
+  (:require [clojure.core.match :refer [match]]
             [instaparse.core :as insta])
   (:gen-class))
 
 (def parse (insta/parser (slurp "src/tin/grammar.ebnf")))
+
+(defn evaluate
+  [value env]
+  (match value
+    [:symbol name] (env name)
+    [:number val] (read-string val)
+    [:expression head & rest] (apply (evaluate head env) rest)))
 
 (defn -main
   "I don't do a whole lot ... yet."
