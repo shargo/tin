@@ -1,0 +1,5 @@
+expression = <"("> form (<whitespace> form)* <")">
+<form> = symbol | number | expression
+symbol = #'[^\s\d][^\s]*'
+number = #'[\d]+'
+<whitespace> = #'\s+'
