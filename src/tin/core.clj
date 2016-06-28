@@ -1,6 +1,7 @@
 (ns tin.core
   (:require [clojure.core.match :refer [match]]
-            [instaparse.core :as insta])
+            [instaparse.core :as insta]
+            [clojure.java.io :as io])
   (:gen-class))
 
 (def parse (insta/parser (slurp "src/tin/grammar.ebnf")))
@@ -32,8 +33,11 @@
   (def input "(+ 1 (+ 2 3))")
   (def parsed (parse input))
   (println parsed)
-  (println (evaluate parsed environment))
-  ;(println (evaluate parsed))
+  (def evaluated (evaluate parsed environment))
+  (println evaluated)
+  (with-open [out (io/writer "output.js")]
+    (.write out evaluated)
+    (.write out "\n"))
   )
 
 (-main)
