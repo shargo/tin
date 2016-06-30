@@ -1,8 +1,9 @@
 (ns tin.core
   (:require
    [clojure.string :as str]
-   [clojure.core.match :refer [match]]
+   [clojure.java.shell :as shell]
    [clojure.java.io :as io]
+   [clojure.core.match :refer [match]]
    [instaparse.core :as insta])
   (:gen-class))
 
@@ -38,12 +39,14 @@
   [& args]
   (def input "(log (+ 1 (+ 2 3)))")
   (def parsed (parse input))
-  (println parsed)
+  (println "parse>" parsed)
   (def evaluated (evaluate parsed environment))
-  (println evaluated)
+  (println "js>" evaluated)
   (with-open [out (io/writer "output.js")]
     (.write out evaluated)
     (.write out "\n"))
+  (let [{output :out} (shell/sh "node" "output.js")]
+    (println "out>" output))
   )
 
 (-main)
