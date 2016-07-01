@@ -25,20 +25,24 @@
    "log" (global-fn "console.log")
    })
 
-(plusTwo 3)
-
 (defn evaluate
   [value env]
   (match value
          [:symbol name] (get env name name)
          [:number val] val
-         [:expression head & rest] (apply (evaluate head env)
-                                          (map #(evaluate %1 env) rest))))
+
+         [:expression head & rest]
+         (apply (evaluate head env)
+                (map #(evaluate %1 env) rest))
+
+         [:program & expressions]
+         (str/join "\n"
+                   (map #(evaluate %1 env) expressions))))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (def input "(= a 1)(log a) ")
+  (def input "(log (= a 1) (+ a 2))")
   (def parsed (parse input))
   (println "parse>" parsed)
   (def evaluated (evaluate parsed environment))

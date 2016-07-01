@@ -3,5 +3,5 @@ expression = <"("> form (<required_space> form)* <")">
 <form> = symbol | number | expression
 symbol = #'[^\s\d][^\s]*'
 number = #'[\d]+'
-<required_space> = #'\s+'
-<whitespace> = #'\s*'
+<required_space> = #'\s'+
+<whitespace> = #'\s'*
