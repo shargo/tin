@@ -1,5 +1,7 @@
-expression = <"("> form (<whitespace> form)* <")">
+program = <whitespace> (expression <whitespace>)*
+expression = <"("> form (<required_space> form)* <")">
 <form> = symbol | number | expression
 symbol = #'[^\s\d][^\s]*'
 number = #'[\d]+'
-<whitespace> = #'\s+'
+<required_space> = #'\s+'
+<whitespace> = #'\s*'

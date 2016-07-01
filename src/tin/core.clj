@@ -21,6 +21,7 @@
    "-" (binary-operator "-")
    "*" (binary-operator "*")
    "/" (binary-operator "/")
+   "=" (binary-operator "=")
    "log" (global-fn "console.log")
    })
 
@@ -29,7 +30,7 @@
 (defn evaluate
   [value env]
   (match value
-         [:symbol name] (env name)
+         [:symbol name] (get env name name)
          [:number val] val
          [:expression head & rest] (apply (evaluate head env)
                                           (map #(evaluate %1 env) rest))))
@@ -37,7 +38,7 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (def input "(log (+ 1 (+ 2 3)))")
+  (def input "(= a 1)(log a) ")
   (def parsed (parse input))
   (println "parse>" parsed)
   (def evaluated (evaluate parsed environment))
