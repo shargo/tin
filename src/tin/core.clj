@@ -7,7 +7,9 @@
    [instaparse.core :as insta])
   (:gen-class))
 
-(def parse (insta/parser (slurp "src/tin/grammar.ebnf")))
+(def parse (insta/parser (slurp "src/tin/grammar.ebnf")
+                         :start :program
+                         :auto-whitespace :standard))
 
 (defn binary-operator [symbol]
   (fn [lhs rhs] (str lhs symbol rhs)))
@@ -42,7 +44,7 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (def input "(log (= a 1) (+ a 2))")
+  (def input "(= a 1)")
   (def parsed (parse input))
   (println "parse>" parsed)
   (def evaluated (evaluate parsed environment))
