@@ -44,7 +44,7 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (def input "(= a 1)")
+  (def input "(= abc 2)(log abc)")
   (def parsed (parse input))
   (println "parse>" parsed)
   (def evaluated (evaluate parsed environment))
