@@ -31,15 +31,23 @@
   [value env]
   (match value
          [:symbol name] (get env name name)
+
          [:number val] val
 
          [:expression head & rest]
-         (apply (evaluate head env)
-                (map #(evaluate %1 env) rest))
+         (str/join " "
+                   (apply (evaluate head env)
+                          (map #(evaluate %1 env) rest)))
 
          [:program & expressions]
          (str/join "\n"
                    (map #(evaluate %1 env) expressions))))
+
+(defn compile-input
+  "Parses and evaluates the string in 'input' and returns the evaluated string
+  output."
+  [input]
+  (evaluate (parse input) environment))
 
 (defn -main
   "I don't do a whole lot ... yet."
@@ -55,5 +63,3 @@
   (let [{output :out} (shell/sh "node" "output.js")]
     (println "out>" output))
   )
-
-(-main)
