@@ -7,6 +7,27 @@
    [instaparse.core :as insta])
   (:gen-class))
 
+(defn process-indentation
+  "Returns a string which replaces indentation from the provided |reader| with
+   indent and deindent tokens."
+  [reader]
+  (let [lines (line-seq reader)]))
+
+(defn indentation-processor []
+  (fn [xf]
+    (let [previous-indent (volatile! ::none)]
+      (fn
+        [[] (xf)]
+        ([result] (xf result))
+        ([result line]
+         (let [previous @previous-indent]
+           (if (empty-line? line)
+             result
+
+
+
+
+
 (def parse (insta/parser (slurp "src/tin/grammar.ebnf")
                          :start :program
                          :auto-whitespace :standard))
