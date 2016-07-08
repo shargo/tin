@@ -13,6 +13,11 @@
   [reader]
   (let [lines (line-seq reader)]))
 
+(defn indent-size
+  "Returns the count of whitespace characters at the beginning of |line|."
+  [line]
+  (count (take-while #(Character/isWhitespace %) (seq test))))
+
 (defn indentation-processor []
   (fn [xf]
     (let [previous-indent (volatile! ::none)]
@@ -21,12 +26,9 @@
         ([result] (xf result))
         ([result line]
          (let [previous @previous-indent]
-           (if (empty-line? line)
+           (if (str/blank? line)
              result
-
-
-
-
+             (xf result (indent-size line)))))))))
 
 (def parse (insta/parser (slurp "src/tin/grammar.ebnf")
                          :start :program
