@@ -20,7 +20,7 @@
 
 (defn indentation-processor []
   (fn [xf]
-    (let [previous-indent (volatile! ::none)]
+    (let [previous-indent (volatile! 0)]
       (fn
         ([] (xf))
         ([result] (xf result))
@@ -28,8 +28,9 @@
          (let [previous @previous-indent]
            (if (str/blank? line)
              result
-             (xf result (indent-size line)))))))))
-
+             (let [indent? (< @previous-indent (indent-size line))]
+               (vreset! previous-indent (indent-size line))
+               (xf result (str indent? line))))))))))
 
 (def parse (insta/parser (slurp "src/tin/grammar.ebnf")
                          :start :program
