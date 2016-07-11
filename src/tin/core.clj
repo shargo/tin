@@ -25,12 +25,13 @@
         ([] (xf))
         ([result] (xf result))
         ([result line]
-         (let [previous @previous-indent]
-           (if (str/blank? line)
-             result
-             (let [indent? (< @previous-indent (indent-size line))]
-               (vreset! previous-indent (indent-size line))
-               (xf result (str indent? line))))))))))
+         (if (str/blank? line)
+           result
+           (let [token (cond (< @previous-indent (indent-size line)) "»"
+                             (> @previous-indent (indent-size line)) "«"
+                             :else "")]
+             (vreset! previous-indent (indent-size line))
+             (xf result (str token line)))))))))
 
 (def parse (insta/parser (slurp "src/tin/grammar.ebnf")
                          :start :program
