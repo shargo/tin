@@ -1,7 +1,10 @@
 program = expression+
-expression = lparen form+ rparen
+expression = <lparen> form+ <rparen> | <line_start> <lparen> form+ <rparen> | <line_start> form+
 <form> = symbol | number | expression
 symbol = #'[-+=!$%^&*_|\p{L}][-+=!$%^&*_|\p{L}\p{N}]*'
 number = #'[\d]+'
 <lparen> = <'('>
 <rparen> = <')'>
+<line_start> = <'≈'>
+<indent> = <'»'>
+<dedent> = <'«'>

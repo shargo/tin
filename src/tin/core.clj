@@ -28,7 +28,7 @@
          result
          (let [token (cond (< @previous-indent (indent-size line)) "»"
                            (> @previous-indent (indent-size line)) "«"
-                           :else "")]
+                           :else "≈")]
            (vreset! previous-indent (indent-size line))
            (xf result (str token line))))))))
 
@@ -44,7 +44,9 @@
 (defn parse
   "Parses the provided string into a parse tree"
   [string]
-  (parse-string (add-indentation-tokens (java.io.StringReader. string))))
+  (parse-string
+   (add-indentation-tokens
+    (io/reader (java.io.StringReader. string)))))
 
 (defn binary-operator [symbol]
   (fn [lhs rhs] (str lhs symbol rhs)))
