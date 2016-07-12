@@ -18,24 +18,33 @@
   [line]
   (count (take-while #(Character/isWhitespace %) (seq line))))
 
-(defn indentation-processor []
-  (fn [xf]
-    (let [previous-indent (volatile! 0)]
-      (fn
-        ([] (xf))
-        ([result] (xf result))
-        ([result line]
-         (if (str/blank? line)
-           result
-           (let [token (cond (< @previous-indent (indent-size line)) "»"
-                             (> @previous-indent (indent-size line)) "«"
-                             :else "")]
-             (vreset! previous-indent (indent-size line))
-             (xf result (str token line)))))))))
+(defn indentation-processor [xf]
+  (let [previous-indent (volatile! 0)]
+    (fn
+      ([] (xf))
+      ([result] (xf result))
+      ([result line]
+       (if (str/blank? line)
+         result
+         (let [token (cond (< @previous-indent (indent-size line)) "»"
+                           (> @previous-indent (indent-size line)) "«"
+                           :else "")]
+           (vreset! previous-indent (indent-size line))
+           (xf result (str token line))))))))
 
-(def parse (insta/parser (slurp "src/tin/grammar.ebnf")
-                         :start :program
-                         :auto-whitespace :standard))
+(defn add-indentation-tokens
+  "Adds » and « tokens indicating indentation in the input |reader|."
+  [reader]
+  (str/join "\n" (into [] indentation-processor (line-seq reader))))
+
+(def parse-string (insta/parser (slurp "src/tin/grammar.ebnf")
+                                :start :program
+                                :auto-whitespace :standard))
+
+(defn parse
+  "Parses the provided string into a parse tree"
+  [string]
+  (parse-string (add-indentation-tokens (java.io.StringReader. string))))
 
 (defn binary-operator [symbol]
   (fn [lhs rhs] (str lhs symbol rhs)))
