@@ -12,6 +12,26 @@
        [:program [:expression [:symbol "+"] [:number "1"] [:number "2"]]]
        (parse "(+ 1 2)")
        ))
+  (is (=
+       [:program [:expression [:symbol "+"] [:number "1"] [:number "2"]]]
+       (parse "+ 1 2")
+       [:program [:expression [:symbol "+"] [:number "1"] [:number "2"]]]
+       ))
+  (is (=
+       (parse "(1 + 1)(2 + 2)")
+       [:program [:expression [:number "1"] [:symbol "+"] [:number "1"]]
+        [:expression [:number "2"] [:symbol "+"] [:number "2"]]]
+       ))
+  (is (=
+       (parse "(1 + 1)\n2 + 2")
+       [:program [:expression [:number "1"] [:symbol "+"] [:number "1"]]
+        [:expression [:number "2"] [:symbol "+"] [:number "2"]]]
+       ))
+  (is (=
+       (parse "1 + 1\n2 + 2")
+       [:program [:expression [:number "1"] [:symbol "+"] [:number "1"]]
+        [:expression [:number "2"] [:symbol "+"] [:number "2"]]]
+       ))
   )
 
 (deftest test-assignment

@@ -1,6 +1,7 @@
 program = expression+
-expression = <lparen> form+ <rparen> | <line_start> <lparen> form+ <rparen> | <line_start> form+
-<form> = symbol | number | expression
+expression = <line_start>? <lparen> form+ <rparen> | <line_start> symbol_or_number+
+<form> = symbol_or_number | expression
+<symbol_or_number> = symbol | number
 symbol = #'[-+=!$%^&*_|\p{L}][-+=!$%^&*_|\p{L}\p{N}]*'
 number = #'[\d]+'
 <lparen> = <'('>
