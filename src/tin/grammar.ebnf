@@ -1,7 +1,6 @@
-program = expression+
-expression = <line_start>? <lparen> form+ <rparen> | <line_start> symbol_or_number+
-<form> = symbol_or_number | expression
-<symbol_or_number> = symbol | number
+program = fncall+
+fncall = line_start form form+
+<form> = symbol | number | fncall
 symbol = #'[-+=!$%^&*_|\p{L}][-+=!$%^&*_|\p{L}\p{N}]*'
 number = #'[\d]+'
 <lparen> = <'('>
