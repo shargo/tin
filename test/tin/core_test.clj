@@ -3,39 +3,22 @@
             [tin.core :refer :all]
             [clojure.string :as str]))
 
-(deftest test-parsing
-  (is (=
-       [:program [:expression [:symbol "a"] [:symbol "="] [:number "1"]]]
-       (parse "(a = 1)")
-       ))
-  (is (=
-       [:program [:expression [:symbol "+"] [:number "1"] [:number "2"]]]
-       (parse "(+ 1 2)")
-       ))
-  (is (=
-       [:program [:expression [:symbol "+"] [:number "1"] [:number "2"]]]
-       (parse "+ 1 2")
-       [:program [:expression [:symbol "+"] [:number "1"] [:number "2"]]]
-       ))
-  (is (=
-       (parse "(1 + 1)(2 + 2)")
-       [:program [:expression [:number "1"] [:symbol "+"] [:number "1"]]
-        [:expression [:number "2"] [:symbol "+"] [:number "2"]]]
-       ))
-  (is (=
-       (parse "(1 + 1)\n2 + 2")
-       [:program [:expression [:number "1"] [:symbol "+"] [:number "1"]]
-        [:expression [:number "2"] [:symbol "+"] [:number "2"]]]
-       ))
-  (is (=
-       (parse "1 + 1\n2 + 2")
-       [:program [:expression [:number "1"] [:symbol "+"] [:number "1"]]
-        [:expression [:number "2"] [:symbol "+"] [:number "2"]]]
-       ))
-  )
+(defmacro test-parse-equals
+  [string program]
+  `(deftest ~(gensym "test")
+     (is (= (parse ~string) ~program))))
 
-(deftest test-assignment
-  (is (= (str/trim
-          (slurp "test/tin/assignment.js"))
-         (str/trim
-          (compile-input (slurp "test/tin/assignment.tin"))))))
+(test-parse-equals
+ "let a = 1"
+ [:program [:fncall [:function_expression [:symbol "let"]]
+            [:function_arguments [:symbol "a"] [:symbol "="] [:number "1"]]]])
+
+(test-parse-equals
+ "foo(bar)"
+ [:program [:fncall [:function_expression [:symbol "foo"]]
+            [:function_arguments [:symbol "bar"]]]])
+;; (deftest test-assignment
+;;   (is (= (str/trim
+;;           (slurp "test/tin/assignment.js"))
+;;          (str/trim
+;;           (compile-input (slurp "test/tin/assignment.tin"))))))

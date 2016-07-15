@@ -1,5 +1,7 @@
 program = fncall+
-fncall = line_start form form+
+fncall = line_start function_expression function_arguments | line_start? function_expression <lparen> function_arguments <rparen>
+function_expression = form
+function_arguments = form+
 <form> = symbol | number | fncall
 symbol = #'[-+=!$%^&*_|\p{L}][-+=!$%^&*_|\p{L}\p{N}]*'
 number = #'[\d]+'
