@@ -26,8 +26,8 @@
       ([result line]
        (if (str/blank? line)
          result
-         (let [token (cond (< @previous-indent (indent-size line)) "»"
-                           (> @previous-indent (indent-size line)) "«"
+         (let [token (cond (< @previous-indent (indent-size line)) "»≈"
+                           (> @previous-indent (indent-size line)) "«≈"
                            :else "≈")]
            (vreset! previous-indent (indent-size line))
            (xf result (str token line))))))))
@@ -35,7 +35,9 @@
 (defn add-indentation-tokens
   "Adds » and « tokens indicating indentation in the input |reader|."
   [reader]
-  (str/join "\n" (into [] indentation-processor (line-seq reader))))
+  (str
+   (str/join "\n" (into [] indentation-processor (line-seq reader)))
+   "≉"))
 
 (def parse-string (insta/parser (slurp "src/tin/grammar.ebnf")
                                 :start :program
