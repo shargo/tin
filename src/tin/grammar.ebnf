@@ -2,13 +2,12 @@ program = fncall+
 fncall = line_start function_expression function_arguments | line_start? function_expression <lparen> function_arguments <rparen>
 function_expression = form
 function_arguments = form+
-block = indent fncall+ (dedent | eof)
+block = indent fncall+ dedent
 <form> = symbol | number | fncall | block
-symbol = #'[-+=!$%^&*_|\p{L}][-+=!$%^&*_|\p{L}\p{N}]*'
+symbol = #'[-+=!$%^&*<>_|\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*'
 number = #'[\d]+'
 <lparen> = <'('>
 <rparen> = <')'>
 <line_start> = <'≈'>
 <indent> = <'»'>
 <dedent> = <'«'>
-<eof> = <'≉'>

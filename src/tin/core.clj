@@ -18,26 +18,30 @@
   [line]
   (count (take-while #(Character/isWhitespace %) (seq line))))
 
-(defn indentation-processor [xf]
+(defn indentation-processor
+  "Transducer which adds indentation and end of line tokens to a line seq."
+  [xf]
   (let [previous-indent (volatile! 0)]
     (fn
       ([] (xf))
-      ([result] (xf result))
-      ([result line]
-       (if (str/blank? line)
-         result
-         (let [token (cond (< @previous-indent (indent-size line)) "»≈"
-                           (> @previous-indent (indent-size line)) "«≈"
-                           :else "≈")]
-           (vreset! previous-indent (indent-size line))
-           (xf result (str token line))))))))
+      ([result]
+       (if (> @previous-indent 0)
+         ; Close any remaining indentation when we reach the end.
+         (xf (xf result "«"))
+         (xf result)))
+       ([result line]
+        (if (str/blank? line)
+          result
+          (let [token (cond (< @previous-indent (indent-size line)) "»≈"
+                            (> @previous-indent (indent-size line)) "«≈"
+                            :else "≈")]
+            (vreset! previous-indent (indent-size line))
+            (xf result (str token line))))))))
 
 (defn add-indentation-tokens
   "Adds » and « tokens indicating indentation in the input |reader|."
   [reader]
-  (str
-   (str/join "\n" (into [] indentation-processor (line-seq reader)))
-   "≉"))
+   (str/join "\n" (into [] indentation-processor (line-seq reader))))
 
 (def parse-string (insta/parser (slurp "src/tin/grammar.ebnf")
                                 :start :program

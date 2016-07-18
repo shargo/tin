@@ -29,6 +29,50 @@
      [:fncall [:function_expression [:symbol "foo"]]
       [:function_arguments [:symbol "bar"]]]])))
 
+(deftest simpleBlock
+  (is
+   (=
+    (parse "a b\n  c d")
+    [:program
+     [:fncall
+      [:function_expression [:symbol "a"]]
+      [:function_arguments
+       [:symbol "b"]
+       [:block [:fncall
+                [:function_expression [:symbol "c"]]
+                [:function_arguments [:symbol "d"]]]]]]])))
+
+(deftest simpleBlockParens
+  (is
+   (=
+    (parse "a b\n  c(d)")
+    [:program
+     [:fncall
+      [:function_expression [:symbol "a"]]
+      [:function_arguments
+       [:symbol "b"]
+       [:block [:fncall
+                [:function_expression [:symbol "c"]]
+                [:function_arguments [:symbol "d"]]]]]]])))
+
+(deftest multilineBlock
+  (is
+   (=
+    (parse "a b\n  c(d)\n  e f")
+    [:program
+     [:fncall
+      [:function_expression [:symbol "a"]]
+      [:function_arguments
+       [:symbol "b"]
+       [:block
+        [:fncall
+         [:function_expression [:symbol "c"]]
+         [:function_arguments [:symbol "d"]]]
+        [:fncall
+         [:function_expression [:symbol "e"]]
+         [:function_arguments [:symbol "f"]]]]]]])))
+
+
 ;; (deftest test-assignment
 ;;   (is (= (str/trim
 ;;           (slurp "test/tin/assignment.js"))
