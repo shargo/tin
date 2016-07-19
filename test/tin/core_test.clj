@@ -72,6 +72,21 @@
          [:function_expression [:symbol "e"]]
          [:function_arguments [:symbol "f"]]]]]]])))
 
+(deftest ifStatement
+  (is
+   (=
+    (parse "if size < 0\n  raise ValueError(errorMessage)")
+    [:program
+     [:fncall
+      [:function_expression [:symbol "if"]]
+      [:function_arguments [:symbol "size"] [:symbol "<"] [:number "0"]
+       [:block
+        [:fncall
+         [:function_expression [:symbol "raise"]]
+         [:function_arguments
+          [:fncall
+           [:function_expression [:symbol "ValueError"]]
+           [:function_arguments [:symbol "errorMessage"]]]]]]]]])))
 
 ;; (deftest test-assignment
 ;;   (is (= (str/trim
