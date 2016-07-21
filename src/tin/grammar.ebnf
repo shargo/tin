@@ -1,3 +1,36 @@
+program = (LINE_START statement)+
+
+statement = fnexpr expression+ block?
+
+fnexpr = expression
+
+block = COLON INDENT (LINE_START statement)+ DEDENT
+
+expression = SYMBOL | NUMBER | fncall
+
+fncall = expression arglist
+
+arglist = LPAREN RPAREN block? | LPAREN expression (COMMA expression)* RPAREN block?
+
+SYMBOL = #'[-+=!$%^&*<>_|\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*'
+
+NUMBER = #'[\d]+'
+
+<COLON> = <':'>
+
+<COMMA> = <','>
+
+<LPAREN> = <'('>
+
+<RPAREN> = <')'>
+
+<LINE_START> = <'≈'>
+
+<INDENT> = <'»'>
+
+<DEDENT> = <'«'>
+
+(*
 program = line+
 <line> = line_start <whitespace>? (fncall | statement) <whitespace>?
 statement = head <whitespace>? (form <whitespace>?)+
@@ -13,3 +46,4 @@ number = #'[\d]+'
 <indent> = <'»'>
 <dedent> = <'«'>
 <whitespace> = #"\s+"
+*)

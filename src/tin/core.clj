@@ -44,7 +44,8 @@
    (str/join "\n" (into [] indentation-processor (line-seq reader))))
 
 (def parse-string (insta/parser (slurp "src/tin/grammar.ebnf")
-                                :start :program))
+                                :start :program
+                                :auto-whitespace :standard))
 
 (defn parse
   "Parses the provided string into a parse tree"
