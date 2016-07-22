@@ -1,16 +1,18 @@
 program = (LINE_START statement)+
 
-statement = fnexpr expression+ block?
+statement = SYMBOL statement_args
+
+statement_args = (LPAREN expression* RPAREN | expression*) block?
 
 fnexpr = expression
 
 block = COLON INDENT (LINE_START statement)+ DEDENT
 
-expression = SYMBOL | NUMBER | fncall
+<expression> = SYMBOL | NUMBER | fncall
 
 fncall = expression arglist
 
-arglist = LPAREN RPAREN block? | LPAREN expression (COMMA expression)* RPAREN block?
+arglist = LPAREN RPAREN | LPAREN expression (COMMA expression)* RPAREN
 
 SYMBOL = #'[-+=!$%^&*<>_|\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*'
 
