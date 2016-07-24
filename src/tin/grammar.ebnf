@@ -4,15 +4,17 @@ statement = head statement_args | expression
 
 head = SYMBOL
 
-statement_args = (LPAREN expression* RPAREN | expression*) block?
+statement_args = expression* block?
 
 fnexpr = simple_expression
 
-block = COLON INDENT (LINE_START statement)+ DEDENT
+block = INDENT (LINE_START statement)+ DEDENT
 
-expression = simple_expression (OPERATOR simple_expression)*
+<expression> = simple_expression (OPERATOR simple_expression)*
 
-<simple_expression> = SYMBOL | NUMBER | fncall
+<simple_expression> = SYMBOL | NUMBER | fncall | paren_expression
+
+<paren_expression> = LPAREN expression+ RPAREN
 
 fncall = simple_expression arglist
 
