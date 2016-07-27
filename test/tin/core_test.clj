@@ -28,6 +28,42 @@
        [:arglist
         [:SYMBOL "bar"]]]]])))
 
+(deftest callFn2Args
+  (is
+   (=
+    (parse "foo(bar, baz)")
+    [:program
+     [:statement
+      [:fncall
+       [:SYMBOL "foo"]
+       [:arglist
+        [:SYMBOL "bar"]
+        [:SYMBOL "baz"]]]]])))
+
+(deftest doubleInvokation
+  (is
+   (=
+    (parse "foo(bar)(baz)")
+    [:program
+     [:statement
+      [:fncall
+       [:fncall
+        [:SYMBOL "foo"]
+        [:arglist
+         [:SYMBOL "bar"]]]
+       [:arglist
+        [:SYMBOL "baz"]]]]])))
+
+(deftest reassign
+  (is
+   (=
+    (parse "a = 1")
+    [:program
+     [:statement
+      [:SYMBOL "a"]
+      [:OPERATOR "="]
+      [:NUMBER "1"]]])))
+
 (deftest assignCallFn
   (is
    (=

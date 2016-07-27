@@ -14,7 +14,7 @@ block = INDENT (LINE_START statement)+ DEDENT
 
 <simple_expression> = SYMBOL | NUMBER | fncall | grouping_expression
 
-grouping_expression = LPAREN expression+ RPAREN
+grouping_expression = LPAREN expression RPAREN
 
 fncall = simple_expression arglist
 
