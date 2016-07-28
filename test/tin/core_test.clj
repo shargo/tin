@@ -2,7 +2,8 @@
   (:require [clojure.test :refer :all]
             [tin.core :refer :all]
             [clojure.set :as set]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [instaparse.core :as insta]))
 
 (deftest assign
   (is
@@ -39,6 +40,10 @@
        [:arglist
         [:SYMBOL "bar"]
         [:SYMBOL "baz"]]]]])))
+
+(deftest callFnNoCommasFails
+  (is
+   (insta/failure? (parse "foo(bar baz)"))))
 
 (deftest doubleInvokation
   (is
