@@ -29,6 +29,17 @@
        [:arglist
         [:SYMBOL "bar"]]]]])))
 
+(deftest callFnKeyword
+  (is
+   (=
+    (parse "foo(bar:)")
+    [:program
+     [:statement
+      [:fncall
+       [:SYMBOL "foo"]
+       [:arglist
+        [:KEYWORD "bar:"]]]]])))
+
 (deftest callFn2Args
   (is
    (=
@@ -68,6 +79,16 @@
       [:SYMBOL "a"]
       [:OPERATOR "="]
       [:NUMBER "1"]]])))
+
+(deftest keywordAssign
+  (is
+   (=
+    (parse "a = foo:")
+    [:program
+     [:statement
+      [:SYMBOL "a"]
+      [:OPERATOR "="]
+      [:KEYWORD "foo:"]]])))
 
 (deftest assignCallFn
   (is

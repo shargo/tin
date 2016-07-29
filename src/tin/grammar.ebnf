@@ -12,7 +12,7 @@ block = INDENT (LINE_START statement)+ DEDENT
 
 <expression> = simple_expression (OPERATOR simple_expression)*
 
-<simple_expression> = SYMBOL | NUMBER | fncall | grouping_expression
+<simple_expression> = SYMBOL | NUMBER | KEYWORD | fncall | grouping_expression
 
 grouping_expression = LPAREN expression RPAREN
 
@@ -21,6 +21,8 @@ fncall = simple_expression arglist
 arglist = LPAREN RPAREN | LPAREN expression (COMMA expression)* RPAREN
 
 SYMBOL = #'[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*'
+
+KEYWORD = #'[\p{L}]+:'
 
 OPERATOR = #'[-+=!$%^&*<>_][-+=!$%^&*<>_|\p{L}\p{N}]*'
 
