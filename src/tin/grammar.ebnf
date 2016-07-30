@@ -8,7 +8,7 @@ statement_args = expression* block?
 
 fnexpr = simple_expression
 
-block = INDENT (LINE_START statement)+ DEDENT
+block = INDENT (LINE_START statement)+ (DEDENT LINE_START KEYWORD expression INDENT (LINE_START statement)+)* DEDENT
 
 <expression> = simple_expression (OPERATOR simple_expression)*
 
