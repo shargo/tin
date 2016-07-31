@@ -207,6 +207,82 @@
            [:arglist
             [:SYMBOL "errorMessage"]]]]]]]]])))
 
+(deftest keywordContinuation
+  (is
+   (=
+    (parse "if a\n  b\nelif: c\n  d")
+    [:program
+     [:statement
+      [:head
+       [:SYMBOL "if"]]
+      [:statement_args
+       [:SYMBOL "a"]
+       [:block
+        [:statement
+         [:SYMBOL "b"]]
+        [:KEYWORD "elif:"]
+        [:SYMBOL "c"]
+        [:statement
+         [:SYMBOL "d"]]]]]])))
+
+(deftest keywordContinuationArgs
+  (is
+   (=
+    (parse "if a\n  b\nelse:\n  d")
+    [:program
+     [:statement
+      [:head
+       [:SYMBOL "if"]]
+      [:statement_args
+       [:SYMBOL "a"]
+       [:block
+        [:statement
+         [:SYMBOL "b"]]
+        [:KEYWORD "else:"]
+        [:statement
+         [:SYMBOL "d"]]]]]])))
+
+(deftest keywordCntinuationParens
+  (is
+   (=
+    (parse "if (a)\n  b\nelif: (c)\n  d")
+    [:program
+     [:statement
+      [:head
+       [:SYMBOL "if"]]
+      [:statement_args
+       [:grouping_expression
+        [:SYMBOL "a"]]
+       [:block
+        [:statement
+         [:SYMBOL "b"]]
+        [:KEYWORD "elif:"]
+        [:grouping_expression
+         [:SYMBOL "c"]]
+        [:statement
+         [:SYMBOL "d"]]]]]])))
+
+(deftest ifElifElse
+  (is
+   (=
+    (parse "if a\n  b\nelif: c\n  d\nelse:\n  e")
+    [:program
+     [:statement
+      [:head
+       [:SYMBOL "if"]]
+      [:statement_args
+       [:SYMBOL "a"]
+       [:block
+        [:statement
+         [:SYMBOL "b"]]
+        [:KEYWORD "elif:"]
+        [:SYMBOL "c"]
+        [:statement
+         [:SYMBOL "d"]]
+        [:KEYWORD "else:"]
+        [:statement
+         [:SYMBOL "e"]]]]]])))
+
 ;; (deftest test-assignment
 ;;   (is (= (str/trim
 ;;           (slurp "test/tin/assignment.js"))
