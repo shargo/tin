@@ -43,21 +43,3 @@ NUMBER = #'[\d]+'
 <INDENT> = <'»'>
 
 <DEDENT> = <'«'>
-
-(*
-program = line+
-<line> = line_start <whitespace>? (fncall | statement) <whitespace>?
-statement = head <whitespace>? (form <whitespace>?)+
-block = indent line+ dedent
-fncall = head <lparen> (form <whitespace>?)* <rparen>
-head = form
-<form> = symbol | number | fncall | block
-symbol = #'[-+=!$%^&*<>_|\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*'
-number = #'[\d]+'
-<lparen> = <'('>
-<rparen> = <')'>
-<line_start> = <'≈'>
-<indent> = <'»'>
-<dedent> = <'«'>
-<whitespace> = #"\s+"
-*)
