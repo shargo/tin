@@ -6,19 +6,25 @@ head = SYMBOL
 
 statement_args = expression* block?
 
-fnexpr = simple_expression
+fnexpr = atom
 
 block = INDENT (LINE_START statement)+ keyword_continuation* DEDENT
 
 <keyword_continuation> = (DEDENT LINE_START KEYWORD expression? INDENT (LINE_START statement)+)
 
-<expression> = simple_expression (OPERATOR simple_expression)*
+<expression> = property_expression | operator_expression
 
-<simple_expression> = SYMBOL | NUMBER | KEYWORD | fncall | grouping_expression
+<operator_expression> = property_expression (OPERATOR property_expression)+
+
+<property_expression> = atom | property_call
+
+property_call = atom (DOT atom)+
+
+<atom> = SYMBOL | NUMBER | KEYWORD | fncall | grouping_expression
 
 grouping_expression = LPAREN expression RPAREN
 
-fncall = simple_expression arglist
+fncall = atom arglist
 
 arglist = LPAREN RPAREN | LPAREN expression (COMMA expression)* RPAREN
 
@@ -31,6 +37,8 @@ OPERATOR = #'[-+=!$%^&*<>_][-+=!$%^&*<>_|\p{L}\p{N}]*'
 NUMBER = #'[\d]+'
 
 <COLON> = <':'>
+
+<DOT> = <'.'>
 
 <COMMA> = <','>
 
