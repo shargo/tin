@@ -283,6 +283,112 @@
         [:statement
          [:SYMBOL "e"]]]]]])))
 
+(deftest propertyMethodCall
+  (is
+   (=
+    (parse "foo.bar(2)")
+    [:program
+     [:statement
+      [:property_call
+       [:SYMBOL "foo"]
+       [:fncall
+        [:SYMBOL "bar"]
+        [:arglist
+         [:NUMBER "2"]]]]]])))
+
+(deftest propertyMethodCallMultipleArgs
+  (is
+   (=
+    (parse "foo.bar(2, 3)")
+    [:program
+     [:statement
+      [:property_call
+       [:SYMBOL "foo"]
+       [:fncall
+        [:SYMBOL "bar"]
+        [:arglist
+         [:NUMBER "2"]
+         [:NUMBER "3"]]]]]])))
+
+(deftest propertyMultipleMethodCalls
+  (is
+   (=
+    (parse "foo.bar(2, 3).baz(3)")
+    [:program
+     [:statement
+      [:property_call
+       [:SYMBOL "foo"]
+       [:fncall
+        [:SYMBOL "bar"]
+        [:arglist
+         [:NUMBER "2"]
+         [:NUMBER "3"]]]
+       [:fncall
+        [:SYMBOL "baz"]
+        [:arglist
+         [:NUMBER "3"]]]]]])))
+
+(deftest propertyNoArgsCalls
+  (is
+   (=
+    (parse "foo().bar(2, 3).baz()")
+    [:program
+     [:statement
+      [:property_call
+       [:fncall
+        [:SYMBOL "foo"]
+        [:arglist]]
+       [:fncall
+        [:SYMBOL "bar"]
+        [:arglist
+         [:NUMBER "2"]
+         [:NUMBER "3"]]]
+       [:fncall
+        [:SYMBOL "baz"]
+        [:arglist]]]]])))
+
+(deftest propertyAssign
+  (is
+   (=
+    (parse "foo.bar = 12")
+    [:program
+     [:statement
+      [:property_call
+       [:SYMBOL "foo"]
+       [:SYMBOL "bar"]]
+      [:OPERATOR "="]
+      [:NUMBER "12"]]])))
+
+(deftest operatorPropertyCall
+  (is
+   (=
+    (parse "(1 + 2).bar = 12")
+    [:program
+     [:statement
+      [:property_call
+       [:grouping_expression
+        [:NUMBER "1"]
+        [:OPERATOR "+"]
+        [:NUMBER "2"]]
+       [:SYMBOL "bar"]]
+      [:OPERATOR "="]
+      [:NUMBER "12"]]])))
+
+(deftest propertyOperatorPrecedence
+  (is
+   (=
+    (parse "(1 + 2).bar = 12")
+    [:program
+     [:statement
+      [:property_call
+       [:grouping_expression
+        [:NUMBER "1"]
+        [:OPERATOR "+"]
+        [:NUMBER "2"]]
+       [:SYMBOL "bar"]]
+      [:OPERATOR "="]
+      [:NUMBER "12"]]])))
+
 ;; (deftest test-assignment
 ;;   (is (= (str/trim
 ;;           (slurp "test/tin/assignment.js"))
