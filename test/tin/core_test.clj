@@ -14,9 +14,11 @@
       [:head
        [:SYMBOL "let"]]
       [:statement_args
-       [:SYMBOL "a"]
-       [:OPERATOR "="]
-       [:NUMBER "1"]]]])))
+       [:operator_expression
+        [:SYMBOL "a"]
+        [:OPERATOR "="]
+        [:NUMBER "1"]]]]])))
+
 
 (deftest callFn
   (is
@@ -56,6 +58,20 @@
   (is
    (insta/failure? (parse "foo(bar baz)"))))
 
+(deftest groupingExpression
+  (is
+   (=
+    (parse "(1  + 2) * 3")
+    [:program
+     [:statement
+      [:operator_expression
+       [:operator_expression
+        [:NUMBER "1"]
+        [:OPERATOR "+"]
+        [:NUMBER "2"]]
+       [:OPERATOR "*"]
+       [:NUMBER "3"]]]])))
+
 (deftest doubleInvokation
   (is
    (=
@@ -76,9 +92,10 @@
     (parse "a = 1")
     [:program
      [:statement
-      [:SYMBOL "a"]
-      [:OPERATOR "="]
-      [:NUMBER "1"]]])))
+      [:operator_expression
+       [:SYMBOL "a"]
+       [:OPERATOR "="]
+       [:NUMBER "1"]]]])))
 
 (deftest keywordAssign
   (is
@@ -86,9 +103,10 @@
     (parse "a = foo:")
     [:program
      [:statement
-      [:SYMBOL "a"]
-      [:OPERATOR "="]
-      [:KEYWORD "foo:"]]])))
+      [:operator_expression
+       [:SYMBOL "a"]
+       [:OPERATOR "="]
+       [:KEYWORD "foo:"]]]])))
 
 (deftest assignCallFn
   (is
@@ -99,12 +117,14 @@
       [:head
        [:SYMBOL "let"]]
       [:statement_args
-       [:SYMBOL "a"]
-       [:OPERATOR "="]
-       [:fncall
-        [:SYMBOL "foo"]
-        [:arglist
-         [:SYMBOL "bar"]]]]]])))
+       [:operator_expression
+        [:SYMBOL "a"]
+        [:OPERATOR "="]
+        [:fncall
+         [:SYMBOL "foo"]
+         [:arglist
+          [:SYMBOL "bar"]]]]]]])))
+
 
 (deftest simpleBlock
   (is
@@ -171,9 +191,10 @@
       [:head
        [:SYMBOL "if"]]
       [:statement_args
-       [:SYMBOL "size"]
-       [:OPERATOR "<"]
-       [:NUMBER "0"]
+       [:operator_expression
+        [:SYMBOL "size"]
+        [:OPERATOR "<"]
+        [:NUMBER "0"]]
        [:block
         [:statement
          [:head
@@ -184,6 +205,7 @@
            [:arglist
             [:SYMBOL "errorMessage"]]]]]]]]])))
 
+
 (deftest ifStatementParens
   (is
    (=
@@ -193,7 +215,7 @@
       [:head
        [:SYMBOL "if"]]
       [:statement_args
-       [:grouping_expression
+       [:operator_expression
         [:SYMBOL "size"]
         [:OPERATOR "<"]
         [:NUMBER "0"]]
@@ -251,14 +273,12 @@
       [:head
        [:SYMBOL "if"]]
       [:statement_args
-       [:grouping_expression
-        [:SYMBOL "a"]]
+       [:SYMBOL "a"]
        [:block
         [:statement
          [:SYMBOL "b"]]
         [:KEYWORD "elif:"]
-        [:grouping_expression
-         [:SYMBOL "c"]]
+        [:SYMBOL "c"]
         [:statement
          [:SYMBOL "d"]]]]]])))
 
@@ -353,11 +373,12 @@
     (parse "foo.bar = 12")
     [:program
      [:statement
-      [:property_call
-       [:SYMBOL "foo"]
-       [:SYMBOL "bar"]]
-      [:OPERATOR "="]
-      [:NUMBER "12"]]])))
+      [:operator_expression
+       [:property_call
+        [:SYMBOL "foo"]
+        [:SYMBOL "bar"]]
+       [:OPERATOR "="]
+       [:NUMBER "12"]]]])))
 
 (deftest operatorPropertyCall
   (is
@@ -365,29 +386,30 @@
     (parse "(1 + 2).bar = 12")
     [:program
      [:statement
-      [:property_call
-       [:grouping_expression
-        [:NUMBER "1"]
-        [:OPERATOR "+"]
-        [:NUMBER "2"]]
-       [:SYMBOL "bar"]]
-      [:OPERATOR "="]
-      [:NUMBER "12"]]])))
+      [:operator_expression
+       [:property_call
+        [:operator_expression
+         [:NUMBER "1"]
+         [:OPERATOR "+"]
+         [:NUMBER "2"]]
+        [:SYMBOL "bar"]]
+       [:OPERATOR "="]
+       [:NUMBER "12"]]]])))
 
 (deftest propertyOperatorPrecedence
   (is
    (=
-    (parse "(1 + 2).bar = 12")
+    (parse "1 + 2.bar = 12")
     [:program
      [:statement
-      [:property_call
-       [:grouping_expression
-        [:NUMBER "1"]
-        [:OPERATOR "+"]
-        [:NUMBER "2"]]
-       [:SYMBOL "bar"]]
-      [:OPERATOR "="]
-      [:NUMBER "12"]]])))
+      [:operator_expression
+       [:NUMBER "1"]
+       [:OPERATOR "+"]
+       [:property_call
+        [:NUMBER "2"]
+        [:SYMBOL "bar"]]
+       [:OPERATOR "="]
+       [:NUMBER "12"]]]])))
 
 ;; (deftest test-assignment
 ;;   (is (= (str/trim

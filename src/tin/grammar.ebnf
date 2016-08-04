@@ -14,7 +14,7 @@ block = INDENT (LINE_START statement)+ keyword_continuation* DEDENT
 
 <expression> = property_expression | operator_expression
 
-<operator_expression> = property_expression (OPERATOR property_expression)+
+operator_expression = property_expression (OPERATOR property_expression)+
 
 <property_expression> = atom | property_call
 
@@ -22,7 +22,7 @@ property_call = atom (DOT atom)+
 
 <atom> = SYMBOL | NUMBER | KEYWORD | fncall | grouping_expression
 
-grouping_expression = LPAREN expression RPAREN
+<grouping_expression> = LPAREN expression RPAREN
 
 fncall = atom arglist
 
