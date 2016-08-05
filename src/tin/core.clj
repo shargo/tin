@@ -54,6 +54,13 @@
    (add-indentation-tokens
     (io/reader (java.io.StringReader. string)))))
 
+(defn parse-all
+  "Parses the provided string into all possible parse trees"
+  [string]
+  (insta/parses parse-string
+                (add-indentation-tokens
+                 (io/reader (java.io.StringReader. string)))))
+
 (defn binary-operator [symbol]
   (fn [lhs rhs] (str lhs symbol rhs)))
 

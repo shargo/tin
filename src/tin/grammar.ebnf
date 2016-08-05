@@ -1,10 +1,8 @@
 program = (LINE_START statement)+
 
-statement = head statement_args | expression
+<statement> = statement_call | expression
 
-head = SYMBOL
-
-statement_args = expression* block?
+statement_call = SYMBOL expression block?
 
 fnexpr = atom
 
@@ -12,21 +10,21 @@ block = INDENT (LINE_START statement)+ keyword_continuation* DEDENT
 
 <keyword_continuation> = (DEDENT LINE_START KEYWORD expression? INDENT (LINE_START statement)+)
 
-<expression> = property_expression | operator_expression
+<expression> = fncall_expression | operator_expression
 
-operator_expression = property_expression (OPERATOR property_expression)+
+operator_expression = fncall_expression (OPERATOR fncall_expression)+
 
-<property_expression> = atom | property_call
-
-property_call = atom (DOT atom)+
-
-<atom> = SYMBOL | NUMBER | KEYWORD | fncall | grouping_expression
-
-<grouping_expression> = LPAREN expression RPAREN
+<fncall_expression> = atom | fncall
 
 fncall = atom arglist
 
 arglist = LPAREN RPAREN | LPAREN expression (COMMA expression)* RPAREN
+
+<atom> = property_call | SYMBOL | NUMBER | KEYWORD | grouping_expression
+
+property_call = atom (DOT SYMBOL)+
+
+<grouping_expression> = LPAREN expression RPAREN
 
 SYMBOL = #'[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*'
 
@@ -35,8 +33,6 @@ KEYWORD = #'[\p{L}]+:'
 OPERATOR = #'[-+=!$%^&*<>_][-+=!$%^&*<>_|\p{L}\p{N}]*'
 
 NUMBER = #'[\d]+'
-
-<COLON> = <':'>
 
 <DOT> = <'.'>
 
