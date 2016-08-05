@@ -16,7 +16,7 @@ operator_expression = fncall_expression (OPERATOR fncall_expression)+
 
 <fncall_expression> = atom | fncall
 
-fncall = atom arglist
+fncall = atom grouping_expression
 
 arglist = LPAREN RPAREN | LPAREN expression (COMMA expression)* RPAREN
 
