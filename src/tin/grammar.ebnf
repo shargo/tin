@@ -4,7 +4,7 @@ statement = head statement_args | expression
 
 head = SYMBOL
 
-statement_args = expression* block?
+statement_args = LPAREN expression RPAREN block?
 
 fnexpr = atom
 
