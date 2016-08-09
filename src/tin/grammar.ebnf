@@ -1,16 +1,18 @@
-program = (LINE_START statement)+
+program = line+
 
-statement = head statement_args | expression
+<line> = LINE_START (statement | expression)
+
+statement = head statement_args
 
 head = SYMBOL
 
-statement_args = LPAREN expression RPAREN block?
+statement_args = expression block?
 
 fnexpr = atom
 
-block = INDENT (LINE_START statement)+ keyword_continuation* DEDENT
+block = INDENT line+ keyword_continuation* DEDENT
 
-<keyword_continuation> = (DEDENT LINE_START KEYWORD expression? INDENT (LINE_START statement)+)
+<keyword_continuation> = (DEDENT LINE_START KEYWORD expression? INDENT line+)
 
 <expression> = property_expression | operator_expression
 
@@ -22,7 +24,7 @@ property_call = atom (DOT atom)+
 
 <atom> = SYMBOL | NUMBER | KEYWORD | fncall | grouping_expression
 
-<grouping_expression> = LPAREN expression RPAREN
+<grouping_expression> = LPAREN operator_expression RPAREN
 
 fncall = atom arglist
 

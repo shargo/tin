@@ -47,19 +47,28 @@
                                 :start :program
                                 :auto-whitespace :standard))
 
-(defn parse
-  "Parses the provided string into a parse tree"
-  [string]
-  (parse-string
-   (add-indentation-tokens
-    (io/reader (java.io.StringReader. string)))))
-
-(defn parse-all
+(defn all-parses
   "Parses the provided string into all possible parse trees"
   [string]
   (insta/parses parse-string
-                (add-indentation-tokens
-                 (io/reader (java.io.StringReader. string)))))
+   (add-indentation-tokens
+    (io/reader (java.io.StringReader. string)))))
+
+(defn parse
+  "Parses the provided string into a parse tree"
+  [string]
+  (let [trees (all-parses string)]
+    (cond
+      (> (count trees) 1)
+      (throw (RuntimeException. (str "Ambiguous parse" string)))
+
+      (= 0 (count trees))
+      (parse-string
+       (add-indentation-tokens
+        (io/reader (java.io.StringReader. string))))
+
+      :else
+      (first trees))))
 
 (defn binary-operator [symbol]
   (fn [lhs rhs] (str lhs symbol rhs)))
