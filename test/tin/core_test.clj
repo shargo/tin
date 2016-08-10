@@ -225,15 +225,21 @@
 (deftest keywordCntinuationParens
   (is
    (=
-    (parse "if (a)\n  b\nelif: (c)\n  d")
+    (parse "if (a + b)\n  b\nelif: (c + d)\n  d")
     [:program
      [:statement_call
       [:SYMBOL "if"]
-      [:SYMBOL "a"]
+      [:operator_expression
+       [:SYMBOL "a"]
+       [:OPERATOR "+"]
+       [:SYMBOL "b"]]
       [:block
        [:SYMBOL "b"]
        [:KEYWORD "elif:"]
-       [:SYMBOL "c"]
+       [:operator_expression
+        [:SYMBOL "c"]
+        [:OPERATOR "+"]
+        [:SYMBOL "d"]]
        [:SYMBOL "d"]]]])))
 
 (deftest ifElifElse

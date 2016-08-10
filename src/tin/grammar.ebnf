@@ -1,12 +1,8 @@
 program = line+
 
-<line> = LINE_START (statement | expression)
+<line> = LINE_START (statement_call | expression)
 
-statement = head statement_args
-
-head = SYMBOL
-
-statement_args = expression block?
+statement_call = SYMBOL expression block?
 
 fnexpr = atom
 
