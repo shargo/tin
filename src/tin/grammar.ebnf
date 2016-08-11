@@ -4,8 +4,6 @@ program = line+
 
 statement_call = SYMBOL expression block?
 
-fnexpr = atom
-
 block = INDENT line+ keyword_continuation* DEDENT
 
 <keyword_continuation> = (DEDENT LINE_START KEYWORD expression? INDENT line+)
@@ -14,15 +12,17 @@ block = INDENT line+ keyword_continuation* DEDENT
 
 operator_expression = property_expression (OPERATOR property_expression)+
 
-<property_expression> = atom | property_call
+<property_expression> = fncall_expression | property_call
 
-property_call = atom (DOT atom)+
+<fncall_expression> = atom | fncall
 
-<atom> = SYMBOL | NUMBER | KEYWORD | fncall | grouping_expression
+fncall = fncall_expression arglist
+
+<atom> = property_call | grouping_expression | SYMBOL | NUMBER | KEYWORD
+
+property_call =  atom DOT atom
 
 <grouping_expression> = LPAREN operator_expression RPAREN
-
-fncall = atom arglist
 
 arglist = LPAREN RPAREN | LPAREN expression (COMMA expression)* RPAREN
 
