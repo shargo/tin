@@ -48,6 +48,8 @@
        [:SYMBOL "bar"]
        [:SYMBOL "baz"]]]])))
 
+; (parse "foo(2 + 2)")
+
 (deftest callFnNoCommasFails
   (is
    (insta/failure? (parse "foo(bar baz)"))))
@@ -55,7 +57,7 @@
 (deftest groupingExpression
   (is
    (=
-    (parse "(1  + 2) * 3")
+    (parse "(1 + 2) * 3")
     [:program
      [:operator_expression
       [:operator_expression
@@ -258,31 +260,30 @@
        [:KEYWORD "else:"]
        [:SYMBOL "e"]]]])))
 
-;; (deftest propertyMethodCall
-;;   (is
-;;    (=
-;;     (parse "foo.bar(2)")
-;;     [:program
-;;      [:property_call
-;;       [:SYMBOL "foo"]
-;;       [:fncall
-;;        [:SYMBOL "bar"]
-;;        [:arglist
-;;         [:NUMBER "2"]]]]])))
+(deftest propertyMethodCall
+  (is
+   (=
+    (parse "foo.bar(2)")
+    [:program
+     [:fncall
+      [:property_call
+       [:SYMBOL "foo"]
+       [:SYMBOL "bar"]]
+      [:arglist
+       [:NUMBER "2"]]]])))
 
-;; (deftest propertyMethodCallMultipleArgs
-;;   (is
-;;    (=
-;;     (parse "foo.bar(2, 3)")
-;;     [:program
-;;      [:statement
-;;       [:property_call
-;;        [:SYMBOL "foo"]
-;;        [:fncall
-;;         [:SYMBOL "bar"]
-;;         [:arglist
-;;          [:NUMBER "2"]
-;;          [:NUMBER "3"]]]]]])))
+(deftest propertyMethodCallMultipleArgs
+  (is
+   (=
+    (parse "foo.bar(2, 3)")
+    [:program
+     [:fncall
+      [:property_call
+       [:SYMBOL "foo"]
+       [:SYMBOL "bar"]]
+      [:arglist
+       [:NUMBER "2"]
+       [:NUMBER "3"]]]])))
 
 ;; (deftest propertyMultipleMethodCalls
 ;;   (is

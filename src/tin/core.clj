@@ -44,8 +44,7 @@
    (str/join "\n" (into [] indentation-processor (line-seq reader))))
 
 (def parse-string (insta/parser (slurp "src/tin/grammar.ebnf")
-                                :start :program
-                                :auto-whitespace :standard))
+                                :start :program))
 
 (defn all-parses
   "Parses the provided string into all possible parse trees"
@@ -60,7 +59,7 @@
   (let [trees (all-parses string)]
     (cond
       (> (count trees) 1)
-      (throw (RuntimeException. (str "Ambiguous parse" string)))
+      (throw (RuntimeException. (str "Ambiguous parse '" string "'")))
 
       (= 0 (count trees))
       (parse-string

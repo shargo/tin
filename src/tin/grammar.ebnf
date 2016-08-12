@@ -1,5 +1,62 @@
 program = line+
 
+<line> = LINE_START expression block?
+
+block = INDENT line+ keyword_continuation* DEDENT
+
+<keyword_continuation> = (DEDENT LINE_START keyword expression? INDENT line+)
+
+<expression> = property_expression | operator_call
+
+operator_call = property_expression (operator property_expression)+
+
+<property_expression> = fncall_expression | property_call
+
+property_call = property_expression DOT symbol
+
+<fncall_expression> = atom | function_call
+
+function_call = atom LPAREN (expression (COMMA expression)*)? RPAREN | atom expression
+
+<atom> = grouping_expression | symbol | number | keyword
+
+grouping_expression = <WS?> LPAREN expression <WS?> RPAREN
+
+<symbol> = <WS?> SYMBOL
+
+SYMBOL = #'[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*'
+
+<keyword> = <WS?> KEYWORD
+
+KEYWORD = #'[\p{L}]+:'
+
+<operator> = <WS?> OPERATOR
+
+OPERATOR = #'[-+=!$%^&*<>_][-+=!$%^&*<>_|\p{L}\p{N}]*'
+
+<number> = <WS?> NUMBER
+
+NUMBER = #'[\d]+'
+
+<DOT> = <'.'>
+
+<COMMA> = <','>
+
+<LPAREN> = <'('>
+
+<RPAREN> = <')'>
+
+<WS> = #'\s+'
+
+<LINE_START> = WS? <'≈'>
+
+<INDENT> = WS? <'»'>
+
+<DEDENT> = WS? <'«'>
+
+(*
+program = line+
+
 <line> = LINE_START (statement_call | expression)
 
 statement_call = SYMBOL expression block?
@@ -20,7 +77,7 @@ fncall = fncall_expression arglist
 
 <atom> = property_call | grouping_expression | SYMBOL | NUMBER | KEYWORD
 
-property_call =  atom DOT atom
+property_call = atom DOT SYMBOL
 
 <grouping_expression> = LPAREN operator_expression RPAREN
 
@@ -49,3 +106,4 @@ NUMBER = #'[\d]+'
 <INDENT> = <'»'>
 
 <DEDENT> = <'«'>
+*)
