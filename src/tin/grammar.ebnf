@@ -1,26 +1,28 @@
 program = line+
 
-<line> = LINE_START expression block?
+<line> = LINE_START (statement_call | expression)
+
+statement_call = SYMBOL <WS> expression block?
 
 block = INDENT line+ keyword_continuation* DEDENT
 
 <keyword_continuation> = (DEDENT LINE_START keyword expression? INDENT line+)
 
-<expression> = property_expression | operator_call
+<expression> = fncall_expression | operator_call
 
-operator_call = property_expression (operator property_expression)+
+operator_call = fncall_expression (operator fncall_expression)+
 
-<property_expression> = fncall_expression | property_call
+<fncall_expression> = property_expression | function_call
 
-property_call = property_expression DOT symbol
+function_call = expression LPAREN (expression (COMMA expression)*)? RPAREN
 
-<fncall_expression> = atom | function_call
+<property_expression> = atom | property_call
 
-function_call = atom LPAREN (expression (COMMA expression)*)? RPAREN | atom expression
+property_call = expression DOT symbol
 
 <atom> = grouping_expression | symbol | number | keyword
 
-grouping_expression = <WS?> LPAREN expression <WS?> RPAREN
+<grouping_expression> = <WS?> LPAREN expression <WS?> RPAREN
 
 <symbol> = <WS?> SYMBOL
 
@@ -40,19 +42,19 @@ NUMBER = #'[\d]+'
 
 <DOT> = <'.'>
 
-<COMMA> = <','>
+<COMMA> = <WS?> <','>
 
 <LPAREN> = <'('>
 
-<RPAREN> = <')'>
+<RPAREN> = <WS?> <')'>
 
 <WS> = #'\s+'
 
-<LINE_START> = WS? <'≈'>
+<LINE_START> = <WS?> <'≈'>
 
-<INDENT> = WS? <'»'>
+<INDENT> = <WS?> <'»'>
 
-<DEDENT> = WS? <'«'>
+<DEDENT> = <WS?> <'«'>
 
 (*
 program = line+

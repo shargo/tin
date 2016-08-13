@@ -12,7 +12,7 @@
     [:program
      [:statement_call
       [:SYMBOL "let"]
-      [:operator_expression
+      [:operator_call
        [:SYMBOL "a"]
        [:OPERATOR "="]
        [:NUMBER "1"]]]])))
@@ -22,33 +22,48 @@
    (=
     (parse "foo(bar)")
     [:program
-     [:fncall
+     [:function_call
       [:SYMBOL "foo"]
-      [:arglist
-       [:SYMBOL "bar"]]]])))
+       [:SYMBOL "bar"]]])))
 
 (deftest callFnKeyword
   (is
    (=
     (parse "foo(bar:)")
     [:program
-     [:fncall
+     [:function_call
       [:SYMBOL "foo"]
-      [:arglist
-       [:KEYWORD "bar:"]]]])))
+      [:KEYWORD "bar:"]]])))
+
+(deftest callFnNoArgs
+  (is
+   (=
+    (parse "foo()")
+    [:program
+     [:function_call
+      [:SYMBOL "foo"]]])))
 
 (deftest callFn2Args
   (is
    (=
     (parse "foo(bar, baz)")
     [:program
-     [:fncall
+     [:function_call
       [:SYMBOL "foo"]
-      [:arglist
-       [:SYMBOL "bar"]
-       [:SYMBOL "baz"]]]])))
+      [:SYMBOL "bar"]
+      [:SYMBOL "baz"]]])))
 
-; (parse "foo(2 + 2)")
+(deftest callFnOperatorExpression
+  (is
+   (=
+    (parse "foo(2 + 2)")
+    [:program
+     [:function_call
+      [:SYMBOL "foo"]
+      [:operator_call
+       [:NUMBER "2"]
+       [:OPERATOR "+"]
+       [:NUMBER "2"]]]])))
 
 (deftest callFnNoCommasFails
   (is
@@ -59,43 +74,59 @@
    (=
     (parse "(1 + 2) * 3")
     [:program
-     [:operator_expression
-      [:operator_expression
+     [:operator_call
+      [:operator_call
        [:NUMBER "1"]
        [:OPERATOR "+"]
        [:NUMBER "2"]]
       [:OPERATOR "*"]
       [:NUMBER "3"]]])))
 
-(deftest doubleInvokation
+(deftest doubleInvocation
   (is
    (=
     (parse "foo(bar)(baz)")
     [:program
-     [:fncall
-      [:fncall
+     [:function_call
+      [:function_call
        [:SYMBOL "foo"]
-       [:arglist
-        [:SYMBOL "bar"]]]
-      [:arglist
-       [:SYMBOL "baz"]]]])))
+       [:SYMBOL "bar"]]]
+     [:SYMBOL "baz"]])))
 
 (deftest reassign
   (is
    (=
     (parse "a = 1")
     [:program
-     [:operator_expression
+     [:operator_call
       [:SYMBOL "a"]
       [:OPERATOR "="]
       [:NUMBER "1"]]])))
+
+(deftest operatorWithMethodCall
+  (is
+   (=
+    (parse "a + b(c)")
+    )))
+
+(deftest operatorMethodCall
+  (is
+   (=
+    (parse "(a + b)(c)")
+    [:program
+     [:function_call
+      [:operator_call
+       [:SYMBOL "a"]
+       [:OPERATOR "+"]
+       [:SYMBOL "b"]]
+      [:SYMBOL "c"]]])))
 
 (deftest keywordAssign
   (is
    (=
     (parse "a = foo:")
     [:program
-     [:operator_expression
+     [:operator_call
       [:SYMBOL "a"]
       [:OPERATOR "="]
       [:KEYWORD "foo:"]]])))
@@ -107,13 +138,12 @@
     [:program
      [:statement_call
       [:SYMBOL "let"]
-      [:operator_expression
+      [:operator_call
        [:SYMBOL "a"]
        [:OPERATOR "="]
-       [:fncall
+       [:function_call
         [:SYMBOL "foo"]
-        [:arglist
-         [:SYMBOL "bar"]]]]]])))
+        [:SYMBOL "bar"]]]]])))
 
 (deftest simpleBlock
   (is
@@ -137,10 +167,9 @@
       [:SYMBOL "a"]
       [:SYMBOL "b"]
       [:block
-       [:fncall
+       [:function_call
         [:SYMBOL "c"]
-        [:arglist
-         [:SYMBOL "d"]]]]]])))
+        [:SYMBOL "d"]]]]])))
 
 (deftest multilineBlock
   (is
@@ -151,13 +180,12 @@
       [:SYMBOL "a"]
       [:SYMBOL "b"]
       [:block
-       [:fncall
+       [:function_call
         [:SYMBOL "c"]
-        [:arglist
-         [:SYMBOL "d"]]]
-       [:statement_call
-        [:SYMBOL "e"]
-        [:SYMBOL "f"]]]]])))
+        [:SYMBOL "d"]]]
+      [:statement_call
+       [:SYMBOL "e"]
+       [:SYMBOL "f"]]]])))
 
 (deftest ifStatement
   (is
@@ -166,17 +194,16 @@
     [:program
      [:statement_call
       [:SYMBOL "if"]
-      [:operator_expression
+      [:operator_call
        [:SYMBOL "size"]
        [:OPERATOR "<"]
        [:NUMBER "0"]]
       [:block
        [:statement_call
         [:SYMBOL "raise"]
-        [:fncall
+        [:function_call
          [:SYMBOL "ValueError"]
-         [:arglist
-          [:SYMBOL "errorMessage"]]]]]]])))
+         [:SYMBOL "errorMessage"]]]]]])))
 
 (deftest ifStatementParens
   (is
@@ -185,17 +212,16 @@
     [:program
      [:statement_call
       [:SYMBOL "if"]
-      [:operator_expression
+      [:operator_call
        [:SYMBOL "size"]
        [:OPERATOR "<"]
        [:NUMBER "0"]]
       [:block
        [:statement_call
         [:SYMBOL "raise"]
-        [:fncall
+        [:function_call
          [:SYMBOL "ValueError"]
-         [:arglist
-          [:SYMBOL "errorMessage"]]]]]]])))
+         [:SYMBOL "errorMessage"]]]]]])))
 
 (deftest keywordContinuation
   (is
@@ -231,14 +257,14 @@
     [:program
      [:statement_call
       [:SYMBOL "if"]
-      [:operator_expression
+      [:operator_call
        [:SYMBOL "a"]
        [:OPERATOR "+"]
        [:SYMBOL "b"]]
       [:block
        [:SYMBOL "b"]
        [:KEYWORD "elif:"]
-       [:operator_expression
+       [:operator_call
         [:SYMBOL "c"]
         [:OPERATOR "+"]
         [:SYMBOL "d"]]
@@ -265,25 +291,25 @@
    (=
     (parse "foo.bar(2)")
     [:program
-     [:fncall
+     [:function_call
       [:property_call
        [:SYMBOL "foo"]
        [:SYMBOL "bar"]]
-      [:arglist
-       [:NUMBER "2"]]]])))
+      [:NUMBER "2"]]])))
+
+; (parse "(1 + 2).foo.bar(5)")
 
 (deftest propertyMethodCallMultipleArgs
   (is
    (=
     (parse "foo.bar(2, 3)")
     [:program
-     [:fncall
+     [:function_call
       [:property_call
        [:SYMBOL "foo"]
        [:SYMBOL "bar"]]
-      [:arglist
-       [:NUMBER "2"]
-       [:NUMBER "3"]]]])))
+      [:NUMBER "2"]
+      [:NUMBER "3"]]])))
 
 ;; (deftest propertyMultipleMethodCalls
 ;;   (is
@@ -293,14 +319,14 @@
 ;;      [:statement
 ;;       [:property_call
 ;;        [:SYMBOL "foo"]
-;;        [:fncall
+;;        [:function_call
 ;;         [:SYMBOL "bar"]
-;;         [:arglist
+;;
 ;;          [:NUMBER "2"]
 ;;          [:NUMBER "3"]]]
-;;        [:fncall
+;;        [:function_call
 ;;         [:SYMBOL "baz"]
-;;         [:arglist
+;;
 ;;          [:NUMBER "3"]]]]]])))
 
 ;; (deftest propertyNoArgsCalls
@@ -310,17 +336,17 @@
 ;;     [:program
 ;;      [:statement
 ;;       [:property_call
-;;        [:fncall
+;;        [:function_call
 ;;         [:SYMBOL "foo"]
-;;         [:arglist]]
-;;        [:fncall
+;;         ]]
+;;        [:function_call
 ;;         [:SYMBOL "bar"]
-;;         [:arglist
+;;
 ;;          [:NUMBER "2"]
 ;;          [:NUMBER "3"]]]
-;;        [:fncall
+;;        [:function_call
 ;;         [:SYMBOL "baz"]
-;;         [:arglist]]]]])))
+;;         ]]]]])))
 
 ;; (deftest propertyAssign
 ;;   (is
@@ -328,7 +354,7 @@
 ;;     (parse "foo.bar = 12")
 ;;     [:program
 ;;      [:statement
-;;       [:operator_expression
+;;       [:operator_call
 ;;        [:property_call
 ;;         [:SYMBOL "foo"]
 ;;         [:SYMBOL "bar"]]
@@ -341,9 +367,9 @@
 ;;     (parse "(1 + 2).bar = 12")
 ;;     [:program
 ;;      [:statement
-;;       [:operator_expression
+;;       [:operator_call
 ;;        [:property_call
-;;         [:operator_expression
+;;         [:operator_call
 ;;          [:NUMBER "1"]
 ;;          [:OPERATOR "+"]
 ;;          [:NUMBER "2"]]
@@ -357,7 +383,7 @@
 ;;     (parse "1 + 2.bar = 12")
 ;;     [:program
 ;;      [:statement
-;;       [:operator_expression
+;;       [:operator_call
 ;;        [:NUMBER "1"]
 ;;        [:OPERATOR "+"]
 ;;        [:property_call
