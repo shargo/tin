@@ -14,7 +14,9 @@ operator_call = fncall_expression (operator fncall_expression)+
 
 <fncall_expression> = property_expression | function_call
 
-function_call = expression LPAREN (expression (COMMA expression)*)? RPAREN
+function_call = function_expression LPAREN (expression (COMMA expression)*)? RPAREN
+
+<function_expression> = grouping_expression | fncall_expression
 
 <property_expression> = atom | property_call
 

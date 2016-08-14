@@ -107,7 +107,13 @@
   (is
    (=
     (parse "a + b(c)")
-    )))
+    [:program
+     [:operator_call
+      [:SYMBOL "a"]
+      [:OPERATOR "+"]
+      [:function_call
+       [:SYMBOL "b"]
+       [:SYMBOL "c"]]]])))
 
 (deftest operatorMethodCall
   (is
