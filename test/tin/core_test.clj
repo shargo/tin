@@ -90,8 +90,8 @@
      [:function_call
       [:function_call
        [:SYMBOL "foo"]
-       [:SYMBOL "bar"]]]
-     [:SYMBOL "baz"]])))
+       [:SYMBOL "bar"]]
+      [:SYMBOL "baz"]]])))
 
 (deftest reassign
   (is
@@ -188,10 +188,10 @@
       [:block
        [:function_call
         [:SYMBOL "c"]
-        [:SYMBOL "d"]]]
-      [:statement_call
-       [:SYMBOL "e"]
-       [:SYMBOL "f"]]]])))
+        [:SYMBOL "d"]]
+       [:statement_call
+        [:SYMBOL "e"]
+        [:SYMBOL "f"]]]]])))
 
 (deftest ifStatement
   (is
@@ -217,6 +217,24 @@
     (parse "if (size < 0)\n  raise ValueError(errorMessage)")
     [:program
      [:statement_call
+      [:SYMBOL "if"]
+      [:operator_call
+       [:SYMBOL "size"]
+       [:OPERATOR "<"]
+       [:NUMBER "0"]]
+      [:block
+       [:statement_call
+        [:SYMBOL "raise"]
+        [:function_call
+         [:SYMBOL "ValueError"]
+         [:SYMBOL "errorMessage"]]]]]])))
+
+(deftest ifStatementParensNoSpace
+  (is
+   (=
+    (parse "if(size < 0)\n  raise ValueError(errorMessage)")
+    [:program
+     [:function_call
       [:SYMBOL "if"]
       [:operator_call
        [:SYMBOL "size"]

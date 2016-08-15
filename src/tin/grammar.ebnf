@@ -2,7 +2,7 @@ program = line+
 
 <line> = LINE_START (statement_call | expression)
 
-statement_call = SYMBOL <WS> expression block?
+statement_call = symbol <WS> expression block?
 
 block = INDENT line+ keyword_continuation* DEDENT
 
@@ -14,7 +14,7 @@ operator_call = fncall_expression (operator fncall_expression)+
 
 <fncall_expression> = property_expression | function_call
 
-function_call = function_expression LPAREN (expression (COMMA expression)*)? RPAREN
+function_call = function_expression LPAREN (expression (COMMA expression)*)? RPAREN block?
 
 <function_expression> = grouping_expression | fncall_expression
 
