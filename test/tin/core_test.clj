@@ -24,7 +24,7 @@
     [:program
      [:function_call
       [:SYMBOL "foo"]
-       [:SYMBOL "bar"]]])))
+      [:SYMBOL "bar"]]])))
 
 (deftest callFnKeyword
   (is
@@ -321,8 +321,6 @@
        [:SYMBOL "bar"]]
       [:NUMBER "2"]]])))
 
-; (parse "(1 + 2).foo.bar(5)")
-
 (deftest propertyMethodCallMultipleArgs
   (is
    (=
@@ -335,89 +333,91 @@
       [:NUMBER "2"]
       [:NUMBER "3"]]])))
 
-;; (deftest propertyMultipleMethodCalls
-;;   (is
-;;    (=
-;;     (parse "foo.bar(2, 3).baz(3)")
-;;     [:program
-;;      [:statement
-;;       [:property_call
-;;        [:SYMBOL "foo"]
-;;        [:function_call
-;;         [:SYMBOL "bar"]
-;;
-;;          [:NUMBER "2"]
-;;          [:NUMBER "3"]]]
-;;        [:function_call
-;;         [:SYMBOL "baz"]
-;;
-;;          [:NUMBER "3"]]]]]])))
+(deftest propertyMultipleMethodCalls
+  (is
+   (=
+    (parse "foo.bar(2, 3).baz(3)")
+    [:program
+     [:function_call
+      [:property_call
+       [:function_call
+        [:property_call
+         [:SYMBOL "foo"]
+         [:SYMBOL "bar"]]
+        [:NUMBER "2"]
+        [:NUMBER "3"]]
+       [:SYMBOL "baz"]]
+      [:NUMBER "3"]]])))
 
-;; (deftest propertyNoArgsCalls
-;;   (is
-;;    (=
-;;     (parse "foo().bar(2, 3).baz()")
-;;     [:program
-;;      [:statement
-;;       [:property_call
-;;        [:function_call
-;;         [:SYMBOL "foo"]
-;;         ]]
-;;        [:function_call
-;;         [:SYMBOL "bar"]
-;;
-;;          [:NUMBER "2"]
-;;          [:NUMBER "3"]]]
-;;        [:function_call
-;;         [:SYMBOL "baz"]
-;;         ]]]]])))
+(deftest propertyNoArgsCalls
+  (is
+   (=
+    (parse "foo().bar(2, 3).baz()")
+    [:program
+     [:function_call
+      [:property_call
+       [:function_call
+        [:property_call
+         [:function_call
+          [:SYMBOL "foo"]]
+         [:SYMBOL "bar"]]
+        [:NUMBER "2"]
+        [:NUMBER "3"]]
+       [:SYMBOL "baz"]]]])))
 
-;; (deftest propertyAssign
-;;   (is
-;;    (=
-;;     (parse "foo.bar = 12")
-;;     [:program
-;;      [:statement
-;;       [:operator_call
-;;        [:property_call
-;;         [:SYMBOL "foo"]
-;;         [:SYMBOL "bar"]]
-;;        [:OPERATOR "="]
-;;        [:NUMBER "12"]]]])))
+(deftest operatorFncall
+  (is
+   (=
+    (parse "(1 + 2).foo.bar(5)")
+    [:program
+     [:function_call
+      [:property_call
+       [:property_call
+        [:operator_call
+         [:NUMBER "1"]
+         [:OPERATOR "+"]
+         [:NUMBER "2"]]
+        [:SYMBOL "foo"]]
+       [:SYMBOL "bar"]]
+      [:NUMBER "5"]]])))
 
-;; (deftest operatorPropertyCall
-;;   (is
-;;    (=
-;;     (parse "(1 + 2).bar = 12")
-;;     [:program
-;;      [:statement
-;;       [:operator_call
-;;        [:property_call
-;;         [:operator_call
-;;          [:NUMBER "1"]
-;;          [:OPERATOR "+"]
-;;          [:NUMBER "2"]]
-;;         [:SYMBOL "bar"]]
-;;        [:OPERATOR "="]
-;;        [:NUMBER "12"]]]])))
+(deftest propertyAssign
+  (is
+   (=
+    (parse "foo.bar = 12")
+    [:program
+     [:operator_call
+      [:property_call
+       [:SYMBOL "foo"]
+       [:SYMBOL "bar"]]
+      [:OPERATOR "="]
+      [:NUMBER "12"]]])))
 
-;; (deftest propertyOperatorPrecedence
-;;   (is
-;;    (=
-;;     (parse "1 + 2.bar = 12")
-;;     [:program
-;;      [:statement
-;;       [:operator_call
-;;        [:NUMBER "1"]
-;;        [:OPERATOR "+"]
-;;        [:property_call
-;;         [:NUMBER "2"]
-;;         [:SYMBOL "bar"]]
-;;        [:OPERATOR "="]
-;;        [:NUMBER "12"]]]])))
+(deftest operatorPropertyCall
+  (is
+   (=
+    (parse "(1 + 2).bar = 12")
+    [:program
+     [:operator_call
+      [:property_call
+       [:operator_call
+        [:NUMBER "1"]
+        [:OPERATOR "+"]
+        [:NUMBER "2"]]
+       [:SYMBOL "bar"]]
+      [:OPERATOR "="]
+      [:NUMBER "12"]]])))
 
-;; (deftest test-assignment
-;;   (is (= (str/trim
-;;           (slurp "test/tin/assignment.js"))
-;;          (str/trim
-;;           (compile-input (slurp "test/tin/assignment.tin"))))))
+(deftest propertyOperatorPrecedence
+  (is
+   (=
+    (parse "1 + 2.bar = 12")
+    [:program
+     [:operator_call
+      [:NUMBER "1"]
+      [:OPERATOR "+"]
+      [:property_call
+       [:NUMBER "2"]
+       [:SYMBOL "bar"]]
+      [:OPERATOR "="]
+      [:NUMBER "12"]]])))

@@ -14,13 +14,13 @@ operator_call = fncall_expression (operator fncall_expression)+
 
 <fncall_expression> = property_expression | function_call
 
-function_call = function_expression LPAREN (expression (COMMA expression)*)? RPAREN block?
+function_call = callable_expression LPAREN (expression (COMMA expression)*)? RPAREN block?
 
-<function_expression> = grouping_expression | fncall_expression
+<callable_expression> = grouping_expression | fncall_expression
 
 <property_expression> = atom | property_call
 
-property_call = expression DOT symbol
+property_call = callable_expression DOT symbol
 
 <atom> = grouping_expression | symbol | number | keyword
 
@@ -57,57 +57,3 @@ NUMBER = #'[\d]+'
 <INDENT> = <WS?> <'»'>
 
 <DEDENT> = <WS?> <'«'>
-
-(*
-program = line+
-
-<line> = LINE_START (statement_call | expression)
-
-statement_call = SYMBOL expression block?
-
-block = INDENT line+ keyword_continuation* DEDENT
-
-<keyword_continuation> = (DEDENT LINE_START KEYWORD expression? INDENT line+)
-
-<expression> = property_expression | operator_expression
-
-operator_expression = property_expression (OPERATOR property_expression)+
-
-<property_expression> = fncall_expression | property_call
-
-<fncall_expression> = atom | fncall
-
-fncall = fncall_expression arglist
-
-<atom> = property_call | grouping_expression | SYMBOL | NUMBER | KEYWORD
-
-property_call = atom DOT SYMBOL
-
-<grouping_expression> = LPAREN operator_expression RPAREN
-
-arglist = LPAREN RPAREN | LPAREN expression (COMMA expression)* RPAREN
-
-SYMBOL = #'[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*'
-
-KEYWORD = #'[\p{L}]+:'
-
-OPERATOR = #'[-+=!$%^&*<>_][-+=!$%^&*<>_|\p{L}\p{N}]*'
-
-NUMBER = #'[\d]+'
-
-<COLON> = <':'>
-
-<DOT> = <'.'>
-
-<COMMA> = <','>
-
-<LPAREN> = <'('>
-
-<RPAREN> = <')'>
-
-<LINE_START> = <'≈'>
-
-<INDENT> = <'»'>
-
-<DEDENT> = <'«'>
-*)
