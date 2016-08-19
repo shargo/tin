@@ -421,25 +421,3 @@
        [:SYMBOL "bar"]]
       [:OPERATOR "="]
       [:NUMBER "12"]]])))
-
-(deftest grammarIsnotAmbiguous
-  (let [atoms [" foo", " bar=", " baz8>", " keyword:", " word:", " +", " -fo",
-               " /9"," 2", " 7", ".", ".", " ,", ",", "(", "(", " (", " (",
-               " )"," )", " )", " ≈", " ≈", " ≈", " »",  " »",  " »", " «",
-               " «", " «", " foo", " foo", " foo", " foo", " foo", " foo"
-               " foo", " foo", "foo", "foo", "foo", " foo", " foo"]
-        runs 100000000]
-    (dotimes [i runs]
-      (if (= (mod i (quot runs 100)) 0)
-             (println (str ">>>>" i)))
-      (let [string (str "≈ "
-                        (str/join
-                         (take (+ 3 (rand-int 5))
-                               (shuffle atoms))))
-            parse-count (count
-                         (insta/parses
-                          parse-string
-                          string))]
-        (is
-         (< parse-count 2)
-         string)))))
