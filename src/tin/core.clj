@@ -13,6 +13,24 @@
   [reader]
   (let [lines (line-seq reader)]))
 
+(defn bracket-counts-for-string
+  "Updates the running balanced count of [], (), and {} brackets in a string
+  in 'bracket-counts'."
+  [bracket-counts string]
+  (let [freqs (frequencies (take-while #(not= \; %) string))]
+    (update
+     (update
+      (update bracket-counts \{ + (- (get freqs \{ 0) (get freqs \} 0)))
+      \[ + (- (get freqs \[ 0) (get freqs \] 0)))
+     \( + (- (get freqs \( 0) (get freqs \) 0)))))
+
+(defn open-brackets?
+  "Returns true if any bracket-counts are greater than 0."
+  [bracket-counts]
+  (when (some neg? (vals bracket-counts))
+    (throw RuntimeException. "Unbalanced brackets!"))
+  (some pos? (vals bracket-counts)))
+
 (defn indent-size
   "Returns the count of whitespace characters at the beginning of |line|."
   [line]
@@ -21,7 +39,8 @@
 (defn indentation-processor
   "Transducer which adds indentation and end of line tokens to a line seq."
   [xf]
-  (let [previous-indent (volatile! 0)]
+  (let [previous-indent (volatile! 0)
+        bracket-counts (volatile! {\( 0 \[ 0 \{ 0})]
     (fn
       ([] (xf))
       ([result]
