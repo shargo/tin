@@ -3,11 +3,26 @@
    [clojure.string :as str])
   (:gen-class))
 
+(def token-regexes
+  {
+   "SYMBOL" #"^[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*",
+   "KEYWORD" #"^[\p{L}]+:"
+   "OPERATOR" #"^[-+=!$%^&*<>_][-+=!$%^&*<>_|\p{L}\p{N}]*"
+   "NUMBER" #"^[\d]+"
+   "DOT" #"^\."
+   "COMMA" #"^,"
+   "LPAREN" #"^\("
+   "RPAREN" #"^\)"
+   "WS" #"^[ ]+"
+   "NEWLINE" #"\n"
+   })
+
 (defn next-token
   "Returns a vector pair consisting of a token string representing the first
    token present in 'string' and the remainder of the string"
   [string]
-  [])
+  []
+  )
 
 (defn tokenize-string
   "Performs lexical analysis on string, returning a string containing the
@@ -16,10 +31,14 @@
   (loop [rest string
          result []
          current-indentation 0
-         is-continued-line? false]
+         is-continued-line? false
+         line-number 0
+         column-number 0]
     (empty? rest) result
     (let [[next-token remainder] (next-token rest)]
       (recur remainder
              (conj result next-token)
              current-indentation
-             is-continued-line?))))
+             is-continued-line?
+             line-number
+             column-number))))
