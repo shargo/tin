@@ -3,11 +3,11 @@
    [clojure.string :as str])
   (:gen-class))
 
-(def ignored-regex #"(?s)(?:[ ]|/\*.*?\*/)*")
+(def ignored-regex #"(?:[ ]|/\*.*?\*/|//[^\n]*)*")
 
 (defn token-regex
   [regex]
-  (re-pattern (str #"^" regex ignored-regex)))
+  (re-pattern (str #"(?s)^" "(" regex ")" ignored-regex)))
 
 (def token-regexes
   [
@@ -19,14 +19,20 @@
    ["COMMA" #","]
    ["LPAREN" #"\("]
    ["RPAREN" #"\)"]
-   ["LINE_START" #"\n"]
+   ["LINE_START" (re-pattern (str "(?:\n" ignored-regex ")*\n([ ])*"))]
    ])
 
 (defn result-for-match
   [token-name match]
-  (if (some #{token-name} #{"SYMBOL" "KEYWORD" "OPERATOR" "NUMBER"})
-    (str token-name "(" match ")")
-    token-name))
+  (cond
+    (some #{token-name} #{"SYMBOL" "KEYWORD" "OPERATOR" "NUMBER"})
+    {:token (str token-name "(" (second match) ")")}
+
+    (= "LINE_START" token-name)
+    {:token "LINE_START" :indent (count (match 2))}
+
+    :else
+    {:token token-name}))
 
 (defn token-match
   "Returns a function which accepts a [token regex] pair and returns a [token
@@ -34,7 +40,7 @@
   [string]
   (fn [[name regex]]
     (when-let [match (re-find (token-regex regex) string)]
-      [(result-for-match name match) (subs string (count match))])))
+      [(result-for-match name match) (subs string (count (first match)))])))
 
 (defn next-token
   "Returns a vector pair consisting of a token string representing the first
