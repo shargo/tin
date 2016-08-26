@@ -48,21 +48,36 @@
   [string]
   (some (token-match string) token-regexes))
 
+(defn make-indent-token
+  [line-indent current-indent]
+  (cond
+    (or (nil? line-indent) (= line-indent current-indent))
+    [nil current-indent]
+    (< line-indent current-indent)
+    ["DEDENT" line-indent]
+    (> line-indent current-indent)
+    ["INDENT" line-indent]))
+
 (defn tokenize-string
   "Performs lexical analysis on string, returning a string containing the
    tokenized representation of the string or a LexicalError value."
   [string]
   (loop [rest (str "\n" string "\n")
          result []
-         current-indentation 0
-         logical-line? false
+         current-indent 0
+         is-line-continuation? false
          line-number 0
          column-number 0]
     (if (empty? rest) result
-        (let [[next-token remainder] (next-token rest)]
+        (let [[{token :token indent :indent} remainder]
+              (next-token rest)
+              [indent-token new-indent]
+              (make-indent-token indent current-indent)]
           (recur remainder
-                 (conj result next-token)
-                 current-indentation
-                 logical-line?
+                 (if indent-token
+                   (conj result indent-token token)
+                   (conj result token))
+                 new-indent
+                 is-line-continuation?
                  line-number
                  column-number)))))
