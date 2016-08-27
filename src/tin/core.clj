@@ -4,87 +4,24 @@
    [clojure.java.shell :as shell]
    [clojure.java.io :as io]
    [clojure.core.match :refer [match]]
-   [instaparse.core :as insta])
+   [instaparse.core :as insta]
+   [tin.lexer :as lexer])
   (:gen-class))
 
-(defn process-indentation
-  "Returns a string which replaces indentation from the provided |reader| with
-   indent and deindent tokens."
-  [reader]
-  (let [lines (line-seq reader)]))
-
-(defn bracket-counts-for-string
-  "Updates the running balanced count of [], (), and {} brackets in a string
-  in 'bracket-counts'."
-  [bracket-counts string]
-  (let [freqs (frequencies (take-while #(not= \; %) string))]
-    (update
-     (update
-      (update bracket-counts \{ + (- (get freqs \{ 0) (get freqs \} 0)))
-      \[ + (- (get freqs \[ 0) (get freqs \] 0)))
-     \( + (- (get freqs \( 0) (get freqs \) 0)))))
-
-(defn open-brackets?
-  "Returns true if any bracket-counts are greater than 0."
-  [bracket-counts]
-  (when (some neg? (vals bracket-counts))
-    (throw RuntimeException. "Unbalanced brackets!"))
-  (some pos? (vals bracket-counts)))
-
-(defn indent-size
-  "Returns the count of whitespace characters at the beginning of |line|."
-  [line]
-  (count (take-while #(Character/isWhitespace %) (seq line))))
-
-(defn indentation-processor
-  "Transducer which adds indentation and end of line tokens to a line seq."
-  [xf]
-  (let [previous-indent (volatile! 0)
-        bracket-counts (volatile! {\( 0 \[ 0 \{ 0})]
-    (fn
-      ([] (xf))
-      ([result]
-       (if (> @previous-indent 0)
-         ; Close any remaining indentation when we reach the end.
-         (xf (xf result "«"))
-         (xf result)))
-       ([result line]
-        (if (str/blank? line)
-          result
-          (let [token (cond (< @previous-indent (indent-size line)) "»≈"
-                            (> @previous-indent (indent-size line)) "«≈"
-                            :else "≈")]
-            (vreset! previous-indent (indent-size line))
-            (xf result (str token line))))))))
-
-(defn add-indentation-tokens
-  "Adds » and « tokens indicating indentation in the input |reader|."
-  [reader]
-   (str/join "\n" (into [] indentation-processor (line-seq reader))))
-
 (def parse-string (insta/parser (slurp "src/tin/grammar.ebnf")
-                                :start :program))
-
-(defn all-parses
-  "Parses the provided string into all possible parse trees"
-  [string]
-  (insta/parses parse-string
-   (add-indentation-tokens
-    (io/reader (java.io.StringReader. string)))))
+                                :start :program
+                                :auto-whitespace :standard))
 
 (defn parse
   "Parses the provided string into a parse tree"
   [string]
-  (let [trees (all-parses string)]
+  (let [tokenized (str/join "\n" (lexer/tokenize-string string))
+        trees (insta/parses parse-string tokenized)]
     (cond
       (> (count trees) 1)
       (throw (RuntimeException. (str "Ambiguous parse '" string "'")))
-
       (= 0 (count trees))
-      (parse-string
-       (add-indentation-tokens
-        (io/reader (java.io.StringReader. string))))
-
+      (parse-string tokenized)
       :else
       (first trees))))
 

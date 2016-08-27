@@ -1,8 +1,8 @@
-program = line+
+program = line+ LINE_START
 
 <line> = LINE_START (statement_call | expression)
 
-statement_call = symbol <WS> expression block?
+statement_call = symbol expression block?
 
 block = INDENT line+ keyword_continuation* DEDENT
 
@@ -24,36 +24,34 @@ property_call = callable_expression DOT symbol
 
 <atom> = grouping_expression | symbol | number | keyword
 
-<grouping_expression> = <WS?> LPAREN expression <WS?> RPAREN
+<grouping_expression> = LPAREN expression RPAREN
 
-<symbol> = <WS?> SYMBOL
+<symbol> = <'SYMBOL('> SYMBOL <')'>
 
-SYMBOL = #'[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*'
+SYMBOL = #'[^)]*'
 
-<keyword> = <WS?> KEYWORD
+<keyword> = <'KEYWORD('> KEYWORD <')'>
 
-KEYWORD = #'[\p{L}]+:'
+KEYWORD =  #'[^)]*'
 
-<operator> = <WS?> OPERATOR
+<operator> = <'OPERATOR('> OPERATOR <')'>
 
-OPERATOR = #'[-+=!$%^&*<>_][-+=!$%^&*<>_|\p{L}\p{N}]*'
+OPERATOR =  #'[^)]*'
 
-<number> = <WS?> NUMBER
+<number> = <'NUMBER('> NUMBER <')'>
 
-NUMBER = #'[\d]+'
+NUMBER =  #'[^)]*'
 
-<DOT> = <'.'>
+<DOT> = <'DOT'>
 
-<COMMA> = <WS?> <','>
+<COMMA> = <'COMMA'>
 
-<LPAREN> = <'('>
+<LPAREN> = <'LPAREN'>
 
-<RPAREN> = <WS?> <')'>
+<RPAREN> = <'RPAREN'>
 
-<WS> = #'\s+'
+<LINE_START> = <'LINE_START'>
 
-<LINE_START> = <WS?> <'≈'>
+<INDENT> = <'INDENT'>
 
-<INDENT> = <WS?> <'»'>
-
-<DEDENT> = <WS?> <'«'>
+<DEDENT> = <'DEDENT'>
