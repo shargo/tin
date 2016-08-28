@@ -2,7 +2,7 @@ program = line+ LINE_START
 
 <line> = LINE_START (statement_call | expression)
 
-statement_call = symbol_ws expression block?
+statement_call = symbol <WS> expression block?
 
 block = INDENT line+ keyword_continuation* DEDENT
 
@@ -24,36 +24,36 @@ property_call = callable_expression DOT symbol
 
 <atom> = grouping_expression | symbol | number | keyword
 
-<grouping_expression> = LPAREN expression RPAREN
+<grouping_expression> = <WS>? LPAREN expression RPAREN
 
-<symbol_ws> = <'SYMBOL_WS('> SYMBOL <')'>
-
-<symbol> = <'SYMBOL('> SYMBOL <')'>
+<symbol> = <WS>? <'SYMBOL('> SYMBOL <')'>
 
 SYMBOL = #'[^)]*'
 
-<keyword> = <'KEYWORD('> KEYWORD <')'>
+<keyword> = <WS>? <'KEYWORD('> KEYWORD <')'>
 
 KEYWORD =  #'[^)]*'
 
-<operator> = <'OPERATOR('> OPERATOR <')'>
+<operator> = <WS>? <'OPERATOR('> OPERATOR <')'>
 
 OPERATOR =  #'[^)]*'
 
-<number> = <'NUMBER('> NUMBER <')'>
+<number> = <WS>? <'NUMBER('> NUMBER <')'>
 
 NUMBER =  #'[^)]*'
 
 <DOT> = <'DOT'>
 
-<COMMA> = <'COMMA'>
+<COMMA> = <WS>? <'COMMA'>
 
 <LPAREN> = <'LPAREN'>
 
-<RPAREN> = <'RPAREN'>
+<RPAREN> = <WS>? <'RPAREN'>
 
-<LINE_START> = <'LINE_START'>
+<LINE_START> = <WS>? <'LINE_START'>
 
-<INDENT> = <'INDENT'>
+<INDENT> = <WS>? <'INDENT'>
 
-<DEDENT> = <'DEDENT'>
+<DEDENT> = <WS>? <'DEDENT'>
+
+<WS> = <'WS'>

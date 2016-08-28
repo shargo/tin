@@ -3,16 +3,13 @@
    [clojure.string :as str])
   (:gen-class))
 
-(def ignored-regex #"(?:[ ]|/\*.*?\*/|//[^\n]*)*")
-
 (defn token-regex
   [regex]
-  (re-pattern (str #"(?s)^" ignored-regex "(" regex ")")))
+  (re-pattern (str #"(?s)^" "(" regex ")")))
 
 (def token-regexes
   [
    ["KEYWORD" (token-regex #"[\p{L}]+:")]
-   ["SYMBOL_PAREN" (token-regex #"[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*\(")]
    ["SYMBOL" (token-regex #"[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*")]
    ["OPERATOR" (token-regex #"[-+=!$%^&*<>_][-+=!$%^&*<>_|\p{L}\p{N}]*")]
    ["NUMBER" (token-regex #"[\d]+")]
@@ -20,14 +17,15 @@
    ["COMMA" (token-regex #",")]
    ["LPAREN" (token-regex #"\(")]
    ["RPAREN" (token-regex #"\)")]
-   ["LINE_START" (re-pattern (str "(?:\n" ignored-regex ")*\n([ ])*"))]
+   ["LINE_START" #"^(?s)(?:\n(?:[ ]|/\*.*?\*/|//[^\n]*)*)*\n([ ])*"]
+   ["WS" #"^(?s)([ ]|/\*.*?\*/|//[^\n]*)+"]
    ])
 
 (defn result-for-match
   "Returns a token object for the provided regex match object."
   [token-name match]
   (cond
-    (some #{token-name} #{"SYMBOL" "SYMBOL_PAREN" "KEYWORD" "OPERATOR" "NUMBER"})
+    (some #{token-name} #{"SYMBOL" "KEYWORD" "OPERATOR" "NUMBER"})
     {:token (str token-name "(" (second match) ")")}
 
     (= "LINE_START" token-name)
