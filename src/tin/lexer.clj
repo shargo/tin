@@ -7,29 +7,31 @@
 
 (defn token-regex
   [regex]
-  (re-pattern (str #"(?s)^" "(" regex ")" ignored-regex)))
+  (re-pattern (str #"(?s)^" ignored-regex "(" regex ")")))
 
 (def token-regexes
   [
-   ["KEYWORD" #"[\p{L}]+:"]
-   ["SYMBOL" #"[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*"]
-   ["OPERATOR" #"[-+=!$%^&*<>_][-+=!$%^&*<>_|\p{L}\p{N}]*"]
-   ["NUMBER" #"[\d]+"]
-   ["DOT" #"\."]
-   ["COMMA" #","]
-   ["LPAREN" #"\("]
-   ["RPAREN" #"\)"]
+   ["KEYWORD" (token-regex #"[\p{L}]+:")]
+   ["SYMBOL_PAREN" (token-regex #"[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*\(")]
+   ["SYMBOL" (token-regex #"[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*")]
+   ["OPERATOR" (token-regex #"[-+=!$%^&*<>_][-+=!$%^&*<>_|\p{L}\p{N}]*")]
+   ["NUMBER" (token-regex #"[\d]+")]
+   ["DOT" (token-regex #"\.")]
+   ["COMMA" (token-regex #",")]
+   ["LPAREN" (token-regex #"\(")]
+   ["RPAREN" (token-regex #"\)")]
    ["LINE_START" (re-pattern (str "(?:\n" ignored-regex ")*\n([ ])*"))]
    ])
 
 (defn result-for-match
+  "Returns a token object for the provided regex match object."
   [token-name match]
   (cond
-    (some #{token-name} #{"SYMBOL" "KEYWORD" "OPERATOR" "NUMBER"})
+    (some #{token-name} #{"SYMBOL" "SYMBOL_PAREN" "KEYWORD" "OPERATOR" "NUMBER"})
     {:token (str token-name "(" (second match) ")")}
 
     (= "LINE_START" token-name)
-    {:token "LINE_START" :indent (count (match 2))}
+    {:token "LINE_START" :indent (count (second match))}
 
     :else
     {:token token-name}))
@@ -39,7 +41,7 @@
   remainder] pair if the regex matches 'string'."
   [string]
   (fn [[name regex]]
-    (when-let [match (re-find (token-regex regex) string)]
+    (when-let [match (re-find regex string)]
       [(result-for-match name match) (subs string (count (first match)))])))
 
 (defn next-token
@@ -49,6 +51,9 @@
   (some (token-match string) token-regexes))
 
 (defn make-indent-token
+  "Returns a pair consisting of an indentation token to insert (or nil) and the
+  new current indentation based on the provided line indentation and current
+  indentation"
   [line-indent current-indent]
   (cond
     (or (nil? line-indent) (= line-indent current-indent))

@@ -2,7 +2,7 @@ program = line+ LINE_START
 
 <line> = LINE_START (statement_call | expression)
 
-statement_call = symbol expression block?
+statement_call = symbol_ws expression block?
 
 block = INDENT line+ keyword_continuation* DEDENT
 
@@ -25,6 +25,8 @@ property_call = callable_expression DOT symbol
 <atom> = grouping_expression | symbol | number | keyword
 
 <grouping_expression> = LPAREN expression RPAREN
+
+<symbol_ws> = <'SYMBOL_WS('> SYMBOL <')'>
 
 <symbol> = <'SYMBOL('> SYMBOL <')'>
 
