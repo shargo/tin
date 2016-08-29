@@ -11,6 +11,7 @@
 (def token-regexes
   [
    ["NUMBER" (token-regex #"(?:0[xX][0-9a-fA-F]+)|(?:[0-9]+(\.[0-9]+)?(?:e[+-]?[0-9]+)?)")]
+   ["STRING" (token-regex #"\"[^\"\\]*(?:\\.[^\"\\]*)*\"")]
    ["KEYWORD" (token-regex #"[\p{L}]+:")]
    ["SYMBOL" (token-regex #"[\p{L}][-+=!%&*<>_|\p{L}\p{N}]*")]
    ["OPERATOR" (token-regex #"[-+=!%&*<>_][-+=!%&*<>_|\p{L}\p{N}]*")]
@@ -26,7 +27,7 @@
   "Returns a token object for the provided regex match object."
   [token-name match]
   (cond
-    (some #{token-name} #{"SYMBOL" "KEYWORD" "OPERATOR" "NUMBER"})
+    (some #{token-name} #{"SYMBOL" "KEYWORD" "OPERATOR" "NUMBER" "STRING"})
     {:token (str token-name "(" (second match) ")")}
 
     (= "LINE_START" token-name)

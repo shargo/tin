@@ -77,3 +77,17 @@
    (=
     (tin.lexer/tokenize-string "1.2.3")
     ["LINE_START" "NUMBER(1.2)" "DOT" "NUMBER(3)" "LINE_START"])))
+
+(deftest stringTest
+  (is (=
+       (tin.lexer/tokenize-string "\"foo\"")
+       ["LINE_START" "STRING(\"foo\")" "LINE_START"]))
+  (is (=
+       (tin.lexer/tokenize-string "\"foo\\bar\"")
+       ["LINE_START" "STRING(\"foo\\bar\")" "LINE_START"]))
+  (is (=
+       (tin.lexer/tokenize-string "\"foo\\\"bar\"")
+       ["LINE_START" "STRING(\"foo\\\"bar\")" "LINE_START"]))
+  (is (=
+       (tin.lexer/tokenize-string "\"foo\n bar\"")
+       ["LINE_START" "STRING(\"foo\n bar\")" "LINE_START"])))
