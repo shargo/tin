@@ -1,6 +1,7 @@
 (ns tin.lexer
   (:require
-   [clojure.string :as str])
+   [clojure.string :as str]
+   [tin.common :as common])
   (:gen-class))
 
 (defn token-regex
@@ -46,7 +47,11 @@
   "Returns a vector pair consisting of a token string representing the first
    token present in 'string' and the remainder of the string"
   [string]
-  (some (token-match string) token-regexes))
+  (if-let [next (some (token-match string) token-regexes)]
+    next
+    (common/failure
+     :TokenError
+     (str "Unexpected character '" (first string)))))
 
 (defn make-indent-token
   "Returns a pair consisting of an indentation token to insert (or nil) and the
@@ -71,16 +76,20 @@
          is-line-continuation? false
          line-number 0
          column-number 0]
-    (if (empty? rest) result
-        (let [[{token :token indent :indent} remainder]
-              (next-token rest)
-              [indent-token new-indent]
-              (make-indent-token indent current-indent)]
-          (recur remainder
-                 (if indent-token
-                   (conj result indent-token token)
-                   (conj result token))
-                 new-indent
-                 is-line-continuation?
-                 line-number
-                 column-number)))))
+    (if (empty? rest)
+      result
+      (let [next-token (next-token rest)]
+        (if (common/failure? next-token)
+          next-token
+          (let [[{token :token indent :indent} remainder]
+                next-token
+                [indent-token new-indent]
+                (make-indent-token indent current-indent)]
+            (recur remainder
+                   (if indent-token
+                     (conj result indent-token token)
+                     (conj result token))
+                   new-indent
+                   is-line-continuation?
+                   line-number
+                   column-number)))))))
