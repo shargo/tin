@@ -10,10 +10,10 @@
 
 (def token-regexes
   [
+   ["NUMBER" (token-regex #"(?:0[xX][0-9a-fA-F]+)|(?:[0-9]+(\.[0-9]+)?(?:e[+-]?[0-9]+)?)")]
    ["KEYWORD" (token-regex #"[\p{L}]+:")]
-   ["SYMBOL" (token-regex #"[\p{L}][-+=!$%^&*<>_|\p{L}\p{N}]*")]
-   ["OPERATOR" (token-regex #"[-+=!$%^&*<>_][-+=!$%^&*<>_|\p{L}\p{N}]*")]
-   ["NUMBER" (token-regex #"[\d]+")]
+   ["SYMBOL" (token-regex #"[\p{L}][-+=!%&*<>_|\p{L}\p{N}]*")]
+   ["OPERATOR" (token-regex #"[-+=!%&*<>_][-+=!%&*<>_|\p{L}\p{N}]*")]
    ["DOT" (token-regex #"\.")]
    ["COMMA" (token-regex #",")]
    ["LPAREN" (token-regex #"\(")]
