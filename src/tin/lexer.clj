@@ -76,13 +76,13 @@
     ["INDENT" line-indent]))
 
 (defn new-balanced-delimiters
-  [balanced-delimiters token]
-  (case token
+  [balanced-delimiters {token-string :token}]
+  (case token-string
     "LPAREN" (update-in balanced-delimiters [:PAREN] inc)
     "RPAREN" (update-in balanced-delimiters [:PAREN] dec)
     "LBRACE" (update-in balanced-delimiters [:BRACE] inc)
     "RBRACE" (update-in balanced-delimiters [:BRACE] dec)
-    "LBRAKET" (update-in balanced-delimiters [:BRACKET] inc)
+    "LBRACKET" (update-in balanced-delimiters [:BRACKET] inc)
     "RBRACKET" (update-in balanced-delimiters [:BRACKET] dec)
     balanced-delimiters))
 
@@ -92,26 +92,45 @@
        (= 0 (:BRACE balanced-delimiters))
        (= 0 (:BRACKET balanced-delimiters))))
 
-(defn new-tokens
-  [token indent-token balanced-delimiters]
-    (if indent-token
-      (if (currently-balanced? balanced-delimiters)
-        [indent-token token]
-        [])
-      [token]))
+(defn negative-balanced?
+  [balanced-delimiters]
+  (or (neg? (:PAREN balanced-delimiters))
+      (neg? (:BRACE balanced-delimiters))
+      (neg? (:BRACKET balanced-delimiters))))
+
+(defn make-new-tokens
+  [{token-string :token line-indent :indent} current-indent balanced-delimiters]
+  (if (negative-balanced? balanced-delimiters)
+    (common/failure :TokenError
+                    (str "Unexpected close delimiter: " balanced-delimiters))
+    (cond (nil? line-indent)
+          {:tokens [token-string] :indent current-indent}
+
+          (currently-balanced? balanced-delimiters)
+          (cond
+            (= line-indent current-indent)
+            {:tokens [token-string] :indent current-indent}
+            (< line-indent current-indent)
+            {:tokens ["DEDENT" token-string] :indent line-indent}
+            (> line-indent current-indent)
+            {:tokens ["INDENT" token-string] :indent line-indent})
+
+          :else
+          {:tokens ["WS"] :indent current-indent})))
 
 (defn process-token
-  [{token :token indent :indent rest :rest}
+  [{rest :rest :as token}
    result
    current-indent
    balanced-delimiters]
   (let [new-balanced (new-balanced-delimiters balanced-delimiters token)
-        [indent-token new-indent] (make-indent-token indent current-indent)
-        tokens (new-tokens token indent-token balanced-delimiters)]
-    {:rest rest
-     :result (apply conj result tokens)
-     :current-indent new-indent
-     :balanced-delimiters new-balanced}))
+        new-tokens-result (make-new-tokens token current-indent new-balanced)]
+    (if (common/failure? new-tokens-result)
+      new-tokens-result
+      {:rest rest
+       :result (apply conj result (:tokens new-tokens-result))
+       :current-indent (:indent new-tokens-result)
+       :balanced-delimiters new-balanced})))
 
 (defn tokenize-string
   "Performs lexical analysis on string, returning a string containing the
@@ -122,7 +141,10 @@
          current-indent 0
          balanced-delimiters {:PAREN 0 :BRACE 0 :BRACKET 0}]
     (if (empty? rest)
-      result
+      (if (currently-balanced? balanced-delimiters)
+        result
+        (common/failure :TokenError
+                        (str "Unclosed Delimiters! " balanced-delimiters)))
       (let [next-token (next-token rest)]
         (if (common/failure? next-token)
           next-token
@@ -130,7 +152,9 @@
                                         result
                                         current-indent
                                         balanced-delimiters)]
-            (recur (:rest new-args)
-                   (:result new-args)
-                   (:current-indent new-args)
-                   (:balanced-delimiters new-args))))))))
+            (if (common/failure? new-args)
+              new-args
+              (recur (:rest new-args)
+                     (:result new-args)
+                     (:current-indent new-args)
+                     (:balanced-delimiters new-args)))))))))

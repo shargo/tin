@@ -421,3 +421,18 @@
        [:SYMBOL "bar"]]
       [:OPERATOR "="]
       [:NUMBER "12"]]])))
+
+(deftest parensSkipNewlines
+  (is
+   (=
+    (parse "(1\n  +\n2).bar = 12")
+    [:program
+     [:operator_call
+      [:property_call
+       [:operator_call
+        [:NUMBER "1"]
+        [:OPERATOR "+"]
+        [:NUMBER "2"]]
+       [:SYMBOL "bar"]]
+      [:OPERATOR "="]
+      [:NUMBER "12"]]])))

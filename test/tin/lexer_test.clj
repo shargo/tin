@@ -95,6 +95,24 @@
 (deftest brackets
   (is
    (=
-    (tin.lexer/tokenize-string "({[}])")
+    (tokenize-string "({[}])")
     ["LINE_START" "LPAREN" "LBRACE" "LBRACKET" "RBRACE" "RBRACKET" "RPAREN"
      "LINE_START"])))
+
+(deftest extraCloseFails
+  (is (common/failure? (tokenize-string ")")))
+  (is (common/failure? (tokenize-string "(foo))")))
+  (is (common/failure? (tokenize-string "(fo]o)"))))
+
+(deftest missingCloseFails
+  (is (common/failure? (tokenize-string "(foo")))
+  (is (common/failure? (tokenize-string "[")))
+  (is (common/failure? (tokenize-string "((foo)"))))
+
+(deftest delimitersIgnoreNewlines
+  (is
+   (=
+    (tokenize-string "(foo\n  bar)\nfoo[foo\nbar]")
+    ["LINE_START" "LPAREN" "SYMBOL(foo)" "WS" "SYMBOL(bar)" "RPAREN"
+     "LINE_START" "SYMBOL(foo)" "LBRACKET" "SYMBOL(foo)" "WS" "SYMBOL(bar)"
+     "RBRACKET" "LINE_START"])))
