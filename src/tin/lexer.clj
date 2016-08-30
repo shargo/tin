@@ -75,17 +75,43 @@
     (> line-indent current-indent)
     ["INDENT" line-indent]))
 
+(defn new-balanced-delimiters
+  [balanced-delimiters token]
+  (case token
+    "LPAREN" (update-in balanced-delimiters [:PAREN] inc)
+    "RPAREN" (update-in balanced-delimiters [:PAREN] dec)
+    "LBRACE" (update-in balanced-delimiters [:BRACE] inc)
+    "RBRACE" (update-in balanced-delimiters [:BRACE] dec)
+    "LBRAKET" (update-in balanced-delimiters [:BRACKET] inc)
+    "RBRACKET" (update-in balanced-delimiters [:BRACKET] dec)
+    balanced-delimiters))
+
+(defn currently-balanced?
+  [balanced-delimiters]
+  (and (= 0 (:PAREN balanced-delimiters))
+       (= 0 (:BRACE balanced-delimiters))
+       (= 0 (:BRACKET balanced-delimiters))))
+
+(defn new-tokens
+  [token indent-token balanced-delimiters]
+    (if indent-token
+      (if (currently-balanced? balanced-delimiters)
+        [indent-token token]
+        [])
+      [token]))
+
 (defn process-token
   [{token :token indent :indent rest :rest}
    result
    current-indent
    balanced-delimiters]
-  (let [[indent-token new-indent] (make-indent-token indent current-indent)
-        tokens (if indent-token [indent-token token] [token])]
+  (let [new-balanced (new-balanced-delimiters balanced-delimiters token)
+        [indent-token new-indent] (make-indent-token indent current-indent)
+        tokens (new-tokens token indent-token balanced-delimiters)]
     {:rest rest
      :result (apply conj result tokens)
      :current-indent new-indent
-     :balanced-delimiters balanced-delimiters}))
+     :balanced-delimiters new-balanced}))
 
 (defn tokenize-string
   "Performs lexical analysis on string, returning a string containing the
@@ -94,7 +120,7 @@
   (loop [rest (str "\n" string "\n")
          result []
          current-indent 0
-         balanced-delimiters {}]
+         balanced-delimiters {:PAREN 0 :BRACE 0 :BRACKET 0}]
     (if (empty? rest)
       result
       (let [next-token (next-token rest)]
