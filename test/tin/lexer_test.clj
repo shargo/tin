@@ -91,3 +91,10 @@
   (is (=
        (tin.lexer/tokenize-string "\"foo\n bar\"")
        ["LINE_START" "STRING(\"foo\n bar\")" "LINE_START"])))
+
+(deftest brackets
+  (is
+   (=
+    (tin.lexer/tokenize-string "({[}])")
+    ["LINE_START" "LPAREN" "LBRACE" "LBRACKET" "RBRACE" "RBRACKET" "RPAREN"
+     "LINE_START"])))

@@ -6,11 +6,13 @@
 
 (defn token-regex
   [regex]
-  (re-pattern (str #"(?s)^" "(" regex ")")))
+  (re-pattern (str #"^" "(" regex ")")))
 
 (def token-regexes
   [
-   ["NUMBER" (token-regex #"(?:0[xX][0-9a-fA-F]+)|(?:[0-9]+(\.[0-9]+)?(?:e[+-]?[0-9]+)?)")]
+   ["NUMBER" (token-regex
+              (re-pattern (str #"(?:0[xX][0-9a-fA-F]+)|"
+                               #"(?:[0-9]+(\.[0-9]+)?(?:e[+-]?[0-9]+)?)")))]
    ["STRING" (token-regex #"\"[^\"\\]*(?:\\.[^\"\\]*)*\"")]
    ["KEYWORD" (token-regex #"[\p{L}]+:")]
    ["SYMBOL" (token-regex #"[\p{L}][-+=!%&*<>_|\p{L}\p{N}]*")]
@@ -19,6 +21,10 @@
    ["COMMA" (token-regex #",")]
    ["LPAREN" (token-regex #"\(")]
    ["RPAREN" (token-regex #"\)")]
+   ["LBRACKET" (token-regex #"\[")]
+   ["RBRACKET" (token-regex #"\]")]
+   ["LBRACE" (token-regex #"\{")]
+   ["RBRACE" (token-regex #"\}")]
    ["LINE_START" #"^(?s)(?:\n(?:[ ]|/\*.*?\*/|//[^\n]*)*)*\n([ ])*"]
    ["WS" #"^(?s)([ ]|/\*.*?\*/|//[^\n]*)+"]
    ])
@@ -42,7 +48,9 @@
   [string]
   (fn [[name regex]]
     (when-let [match (re-find regex string)]
-      [(result-for-match name match) (subs string (count (first match)))])))
+      (assoc (result-for-match name match)
+             :rest
+             (subs string (count (first match)))))))
 
 (defn next-token
   "Returns a vector pair consisting of a token string representing the first
@@ -67,6 +75,18 @@
     (> line-indent current-indent)
     ["INDENT" line-indent]))
 
+(defn process-token
+  [{token :token indent :indent rest :rest}
+   result
+   current-indent
+   balanced-delimiters]
+  (let [[indent-token new-indent] (make-indent-token indent current-indent)
+        tokens (if indent-token [indent-token token] [token])]
+    {:rest rest
+     :result (apply conj result tokens)
+     :current-indent new-indent
+     :balanced-delimiters balanced-delimiters}))
+
 (defn tokenize-string
   "Performs lexical analysis on string, returning a string containing the
    tokenized representation of the string or a LexicalError value."
@@ -74,23 +94,17 @@
   (loop [rest (str "\n" string "\n")
          result []
          current-indent 0
-         is-line-continuation? false
-         line-number 0
-         column-number 0]
+         balanced-delimiters {}]
     (if (empty? rest)
       result
       (let [next-token (next-token rest)]
         (if (common/failure? next-token)
           next-token
-          (let [[{token :token indent :indent} remainder]
-                next-token
-                [indent-token new-indent]
-                (make-indent-token indent current-indent)]
-            (recur remainder
-                   (if indent-token
-                     (conj result indent-token token)
-                     (conj result token))
-                   new-indent
-                   is-line-continuation?
-                   line-number
-                   column-number)))))))
+          (let [new-args (process-token next-token
+                                        result
+                                        current-indent
+                                        balanced-delimiters)]
+            (recur (:rest new-args)
+                   (:result new-args)
+                   (:current-indent new-args)
+                   (:balanced-delimiters new-args))))))))
