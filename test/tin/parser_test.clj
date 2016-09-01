@@ -1,6 +1,6 @@
-(ns tin.core-test
+(ns tin.parser-test
   (:require [clojure.test :refer :all]
-            [tin.core :refer :all]
+            [tin.parser :refer :all]
             [clojure.set :as set]
             [clojure.string :as str]
             [instaparse.core :as insta]))

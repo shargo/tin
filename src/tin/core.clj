@@ -5,25 +5,8 @@
    [clojure.java.io :as io]
    [clojure.core.match :refer [match]]
    [instaparse.core :as insta]
-   [tin.lexer :as lexer])
+   [tin.parser :as parser])
   (:gen-class))
-
-(def parse-string (insta/parser (slurp "src/tin/grammar.ebnf")
-                                :start :program
-                                :auto-whitespace :standard))
-
-(defn parse
-  "Parses the provided string into a parse tree"
-  [string]
-  (let [tokenized (str/join "\n" (lexer/tokenize-string string))
-        trees (insta/parses parse-string tokenized)]
-    (cond
-      (> (count trees) 1)
-      (throw (RuntimeException. (str "Ambiguous parse '" string "'")))
-      (= 0 (count trees))
-      (parse-string tokenized)
-      :else
-      (first trees))))
 
 (defn binary-operator [symbol]
   (fn [lhs rhs] (str lhs symbol rhs)))
@@ -67,7 +50,7 @@
   "I don't do a whole lot ... yet."
   [& args]
   (def input "(= abc 2)(log abc)")
-  (def parsed (parse input))
+  (def parsed (parser/parse input))
   (println "parse>" parsed)
   (def evaluated (evaluate parsed environment))
   (println "js>" evaluated)
