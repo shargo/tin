@@ -1,6 +1,7 @@
 (ns tin.parser-test
   (:require [clojure.test :refer :all]
             [tin.parser :refer :all]
+            [tin.common :refer :all]
             [clojure.set :as set]
             [clojure.string :as str]
             [instaparse.core :as insta]))
@@ -449,3 +450,72 @@
        [:SYMBOL "bar"]]
       [:OPERATOR "="]
       [:NUMBER "12"]]])))
+
+(deftest emptyBrackets
+  (is
+   (=
+    (parse "[]")
+    [:program
+     [:bracket_expression]])))
+
+(deftest singleBrackets
+  (is
+   (=
+    (parse "[123]")
+    [:program
+     [:bracket_expression
+      [:NUMBER "123"]]])))
+
+(deftest twoBrackets
+  (is
+   (=
+    (parse "[foo, bar]")
+    [:program
+     [:bracket_expression
+      [:SYMBOL "foo"]
+      [:SYMBOL "bar"]]])))
+
+(deftest assignBrackets
+  (is
+   (=
+    (parse "let a = [foo, bar, 123, \"str\"]")
+    [:program
+     [:statement_call
+      [:SYMBOL "let"]
+      [:operator_call
+       [:SYMBOL "a"]
+       [:OPERATOR "="]
+       [:bracket_expression
+        [:SYMBOL "foo"]
+        [:SYMBOL "bar"]
+        [:NUMBER "123"]
+        [:STRING "\"str\""]]]]])))
+
+(deftest fncallBrackets
+  (is
+   (=
+    (parse "myFunction([321])")
+    [:program
+     [:function_call
+      [:SYMBOL "myFunction"]
+      [:bracket_expression
+       [:NUMBER "321"]]]])))
+
+(deftest operatorBrackets
+  (is
+   (=
+    (parse "[321] + 789")
+    [:program
+     [:operator_call
+      [:bracket_expression
+       [:NUMBER "321"]]
+      [:OPERATOR "+"]
+      [:NUMBER "789"]]])))
+
+(deftest unbalancedFailure
+  (is
+   (failure?
+    (parse "(123")))
+  (is
+   (failure?
+    (parse ")123"))))

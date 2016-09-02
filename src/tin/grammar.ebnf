@@ -65,7 +65,7 @@ NUMBER =  #'[^)]*'
 
 <RPAREN> = <WS>? <'RPAREN'>
 
-<LBRAKET> = <'LBRACKET'>
+<LBRACKET> = <'LBRACKET'>
 
 <RBRACKET> = <WS>? <'RBRACKET'>
 
