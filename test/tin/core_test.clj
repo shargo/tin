@@ -93,6 +93,19 @@
        [:SYMBOL "bar"]]
       [:SYMBOL "baz"]]])))
 
+(deftest callStrings
+  (is
+   (=
+    (parse "foo = \"str\"\nbar(`code str`)")
+    [:program
+     [:operator_call
+      [:SYMBOL "foo"]
+      [:OPERATOR "="]
+      [:STRING "\"str\""]]
+     [:function_call
+      [:SYMBOL "bar"]
+      [:CODE_STRING "`code str`"]]])))
+
 (deftest reassign
   (is
    (=

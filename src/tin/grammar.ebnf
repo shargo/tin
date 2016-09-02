@@ -22,7 +22,7 @@ function_call = callable_expression LPAREN (expression (COMMA expression)*)? RPA
 
 property_call = callable_expression DOT symbol
 
-<atom> = grouping_expression | symbol | number | keyword
+<atom> = grouping_expression | symbol | keyword | number | string | code_string
 
 <grouping_expression> = <WS>? LPAREN expression RPAREN
 
@@ -39,6 +39,14 @@ KEYWORD =  #'[^)]*'
 OPERATOR =  #'[^)]*'
 
 <number> = <WS>? <'NUMBER('> NUMBER <')'>
+
+<string> = <WS>? <'STRING('> STRING <')'>
+
+STRING = #'[^)]*'
+
+<code_string> = <WS>? <'CODE_STRING('> CODE_STRING <')'>
+
+CODE_STRING = #'[^)]*'
 
 NUMBER =  #'[^)]*'
 

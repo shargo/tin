@@ -53,6 +53,12 @@
     (tokenize-string "foo\n\n")
     ["LINE_START" "SYMBOL(foo)" "LINE_START"])))
 
+(deftest specialCharacters
+  (is
+   (=
+    (tokenize-string "~@~#^")
+    ["LINE_START" "TILDE_AT" "TILDE" "POUND" "CARAT" "LINE_START"])))
+
 (deftest illegalColon
   (is
    (common/failure?
@@ -91,6 +97,20 @@
   (is (=
        (tin.lexer/tokenize-string "\"foo\n bar\"")
        ["LINE_START" "STRING(\"foo\n bar\")" "LINE_START"])))
+
+(deftest codeStringTest
+  (is (=
+       (tin.lexer/tokenize-string "`foo`")
+       ["LINE_START" "CODE_STRING(`foo`)" "LINE_START"]))
+  (is (=
+       (tin.lexer/tokenize-string "`foo\\bar`")
+       ["LINE_START" "CODE_STRING(`foo\\bar`)" "LINE_START"]))
+  (is (=
+       (tin.lexer/tokenize-string "`foo\\`bar`")
+       ["LINE_START" "CODE_STRING(`foo\\`bar`)" "LINE_START"]))
+  (is (=
+       (tin.lexer/tokenize-string "`foo\n bar`")
+       ["LINE_START" "CODE_STRING(`foo\n bar`)" "LINE_START"])))
 
 (deftest brackets
   (is

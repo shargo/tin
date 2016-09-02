@@ -14,6 +14,7 @@
               (re-pattern (str #"(?:0[xX][0-9a-fA-F]+)|"
                                #"(?:[0-9]+(\.[0-9]+)?(?:e[+-]?[0-9]+)?)")))]
    ["STRING" (token-regex #"\"[^\"\\]*(?:\\.[^\"\\]*)*\"")]
+   ["CODE_STRING" (token-regex #"`[^`\\]*(?:\\.[^`\\]*)*`")]
    ["KEYWORD" (token-regex #"[\p{L}]+:")]
    ["SYMBOL" (token-regex #"[\p{L}][-+=!%&*<>_|\p{L}\p{N}]*")]
    ["OPERATOR" (token-regex #"[-+=!%&*<>_][-+=!%&*<>_|\p{L}\p{N}]*")]
@@ -25,6 +26,10 @@
    ["RBRACKET" (token-regex #"\]")]
    ["LBRACE" (token-regex #"\{")]
    ["RBRACE" (token-regex #"\}")]
+   ["TILDE_AT" (token-regex #"~@")]
+   ["TILDE" (token-regex #"~")]
+   ["POUND" (token-regex #"#")]
+   ["CARAT" (token-regex #"\^")]
    ["LINE_START" #"^(?s)(?:\n(?:[ ]|/\*.*?\*/|//[^\n]*)*)*\n([ ])*"]
    ["WS" #"^(?s)([ ]|/\*.*?\*/|//[^\n]*)+"]
    ])
@@ -33,7 +38,8 @@
   "Returns a token object for the provided regex match object."
   [token-name match]
   (cond
-    (some #{token-name} #{"SYMBOL" "KEYWORD" "OPERATOR" "NUMBER" "STRING"})
+    (some #{token-name} #{"SYMBOL" "KEYWORD" "OPERATOR" "NUMBER" "STRING"
+                          "CODE_STRING"})
     {:token (str token-name "(" (second match) ")")}
 
     (= "LINE_START" token-name)
