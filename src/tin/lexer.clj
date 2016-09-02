@@ -30,6 +30,7 @@
    ["TILDE" (token-regex #"~")]
    ["POUND" (token-regex #"#")]
    ["CARAT" (token-regex #"\^")]
+   ["COLON" (token-regex #"\:")]
    ["LINE_START" #"^(?s)(?:\n(?:[ ]|/\*.*?\*/|//[^\n]*)*)*\n([ ])*"]
    ["WS" #"^(?s)([ ]|/\*.*?\*/|//[^\n]*)+"]
    ])

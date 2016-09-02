@@ -22,9 +22,16 @@ function_call = callable_expression LPAREN (expression (COMMA expression)*)? RPA
 
 property_call = callable_expression DOT symbol
 
-<atom> = grouping_expression | symbol | keyword | number | string | code_string
+<atom> = grouping_expression | symbol | keyword | number | string |
+         code_string | bracket_expression | brace_expression
 
 <grouping_expression> = <WS>? LPAREN expression RPAREN
+
+bracket_expression = <WS>? LBRACKET (expression (COMMA expression)*)? RBRACKET
+
+brace_expression = <WS>? LBRACE ( key_value_expression (COMMA key_value_expression)*)? RBRACE
+
+<key_value_expression> = expression COLON? expression
 
 <symbol> = <WS>? <'SYMBOL('> SYMBOL <')'>
 
@@ -57,6 +64,16 @@ NUMBER =  #'[^)]*'
 <LPAREN> = <'LPAREN'>
 
 <RPAREN> = <WS>? <'RPAREN'>
+
+<LBRAKET> = <'LBRACKET'>
+
+<RBRACKET> = <WS>? <'RBRACKET'>
+
+<LBRACE> = <WS>? <'LBRACE'>
+
+<RBRACE> = <WS>? <'RBRACE'>
+
+<COLON> = <WS>? <'COLON'>
 
 <LINE_START> = <WS>? <'LINE_START'>
 

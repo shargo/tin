@@ -56,13 +56,8 @@
 (deftest specialCharacters
   (is
    (=
-    (tokenize-string "~@~#^")
-    ["LINE_START" "TILDE_AT" "TILDE" "POUND" "CARAT" "LINE_START"])))
-
-(deftest illegalColon
-  (is
-   (common/failure?
-    (tokenize-string "foo : bar"))))
+    (tokenize-string "~@~#^:")
+    ["LINE_START" "TILDE_AT" "TILDE" "POUND" "CARAT" "COLON" "LINE_START"])))
 
 (deftest illegalDollarSign
   (is
