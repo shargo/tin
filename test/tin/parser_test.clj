@@ -68,7 +68,7 @@
 
 (deftest callFnNoCommasFails
   (is
-   (insta/failure? (parse "foo(bar baz)"))))
+   (failure? (parse "foo(bar baz)"))))
 
 (deftest groupingExpression
   (is
@@ -475,6 +475,11 @@
       [:SYMBOL "foo"]
       [:SYMBOL "bar"]]])))
 
+(deftest trailingCommaBracketError
+  (is
+   (failure?
+    (parse "[foo,]"))))
+
 (deftest assignBrackets
   (is
    (=
@@ -509,6 +514,80 @@
      [:operator_call
       [:bracket_expression
        [:NUMBER "321"]]
+      [:OPERATOR "+"]
+      [:NUMBER "789"]]])))
+
+(deftest emptyBraces
+  (is
+   (=
+    (parse "{}")
+    [:program
+     [:brace_expression]])))
+
+(deftest singleBracesFail
+  (is
+   (failure?
+    (parse "{123}"))))
+
+(deftest twoBrace
+  (is
+   (=
+    (parse "{foo: bar}")
+    [:program
+     [:brace_expression
+      [:KEYWORD "foo:"]
+      [:SYMBOL "bar"]]])))
+
+(deftest trailingCommaBraceError
+  (is
+   (failure?
+    (parse "{foo: bar,}"))))
+
+(deftest fourBrace
+  (is
+   (=
+    (parse "{1: 2, three: four}")
+    [:program
+     [:brace_expression
+      [:NUMBER "1"]
+      [:NUMBER "2"]
+      [:KEYWORD "three:"]
+      [:SYMBOL "four"]]])))
+
+(deftest assignBrace
+  (is
+   (=
+    (parse "let a = {\"foo\": 2}")
+    [:program
+     [:statement_call
+      [:SYMBOL "let"]
+      [:operator_call
+       [:SYMBOL "a"]
+       [:OPERATOR "="]
+       [:brace_expression
+        [:STRING "\"foo\""]
+        [:NUMBER "2"]]]]])))
+
+(deftest fncallBraces
+  (is
+   (=
+    (parse "myFunction({321:123})")
+    [:program
+     [:function_call
+      [:SYMBOL "myFunction"]
+      [:brace_expression
+       [:NUMBER "321"]
+       [:NUMBER "123"]]]])))
+
+(deftest operatorBraces
+  (is
+   (=
+    (parse "[321] + 789")
+    [:program
+     [:operator_call
+      [:brace_expression
+       [:NUMBER "321"]
+       [:NUMBER "123"]]
       [:OPERATOR "+"]
       [:NUMBER "789"]]])))
 

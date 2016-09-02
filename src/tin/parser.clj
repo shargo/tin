@@ -20,8 +20,13 @@
             trees (insta/parses parse-string tokenized)]
         (cond
           (> (count trees) 1)
-          (throw (RuntimeException. (str "Ambiguous parse '" string "'")))
+          (common/failure :AmbiguousParse (str "Ambiguous parse '" string "'"))
+
           (= 0 (count trees))
-          (parse-string tokenized)
+          (let [parsed (parse-string tokenized)]
+            (if (insta/failure? parsed)
+              (common/failure :ParseError (str parsed))
+              parsed))
+
           :else
           (first trees))))))
