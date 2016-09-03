@@ -12,9 +12,11 @@ block = INDENT line+ keyword_continuation* DEDENT
 
 operator_call = fncall_expression (operator fncall_expression)+
 
-<fncall_expression> = property_expression | function_call
+<fncall_expression> = property_expression | function_call | index_expression
 
 function_call = callable_expression LPAREN (expression (COMMA expression)*)? RPAREN block?
+
+index_expression = callable_expression LBRACKET expression RBRACKET
 
 <callable_expression> = grouping_expression | fncall_expression
 

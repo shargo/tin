@@ -582,7 +582,7 @@
 (deftest operatorBraces
   (is
    (=
-    (parse "[321] + 789")
+    (parse "{321:123} + 789")
     [:program
      [:operator_call
       [:brace_expression
@@ -597,4 +597,10 @@
     (parse "(123")))
   (is
    (failure?
-    (parse ")123"))))
+    (parse ")123")))
+  (is
+   (failure?
+    (parse "{123")))
+  (is
+   (failure?
+    (parse "{123]"))))
