@@ -604,3 +604,137 @@
   (is
    (failure?
     (parse "{123]"))))
+
+(deftest indexLookup
+  (is
+   (=
+    (parse "foo[2]")
+    [:program [:index_expression [:SYMBOL "foo"] [:NUMBER "2"]]])))
+
+(deftest multipleIndexLookup
+  (is
+   (=
+    (parse "foo[a][b]")
+    [:program
+     [:index_expression
+      [:index_expression
+       [:SYMBOL "foo"]
+       [:SYMBOL "a"]]
+      [:SYMBOL "b"]]])))
+
+(deftest noIndexLookupWithSpace
+  (is
+   (=
+    (parse "foo [2]")
+    [:program
+     [:statement_call
+      [:SYMBOL "foo"]
+      [:bracket_expression
+       [:NUMBER "2"]]]])))
+
+(deftest bracketIndexLookup
+  (is
+   (=
+    (parse "[1][2]")
+    [:program
+     [:index_expression
+      [:bracket_expression
+       [:NUMBER "1"]]
+      [:NUMBER "2"]]])))
+
+(deftest operatorIndexLookup
+  (is
+   (=
+    (parse "(1 + 3)[2]")
+    [:program
+     [:index_expression
+      [:operator_call
+       [:NUMBER "1"]
+       [:OPERATOR "+"]
+       [:NUMBER "3"]]
+      [:NUMBER "2"]]])))
+
+(deftest fncallWithBrackets
+  (is
+   (=
+    (parse "foo([2], 3)")
+    [:program
+     [:function_call
+      [:SYMBOL "foo"]
+      [:bracket_expression
+       [:NUMBER "2"]]
+      [:NUMBER "3"]]])))
+
+(deftest fncallThenIndex
+  (is
+   (=
+    (parse "foo(3)[2]")
+    [:program
+     [:index_expression
+      [:function_call
+       [:SYMBOL "foo"]
+       [:NUMBER "3"]]
+      [:NUMBER "2"]]])))
+
+(deftest indexThenFncall
+  (is
+   (=
+    (parse "foo[2](3)")
+    [:program
+     [:function_call
+      [:index_expression
+       [:SYMBOL "foo"]
+       [:NUMBER "2"]]
+      [:NUMBER "3"]]])))
+
+(deftest groupedIndex
+  (is
+   (=
+    (parse "(foo[2])")
+    [:program
+     [:index_expression
+      [:SYMBOL "foo"]
+      [:NUMBER "2"]]])))
+
+(deftest operatorIndexNoParens
+  (is
+   (=
+    (parse "1 + 3[2]")
+    [:program
+     [:operator_call
+      [:NUMBER "1"]
+      [:OPERATOR "+"]
+      [:index_expression
+       [:NUMBER "3"]
+       [:NUMBER "2"]]]])))
+
+(deftest propertyCallIndex
+  (is
+   (=
+    (parse "foo.bar[2]")
+    [:program
+     [:index_expression
+      [:property_call
+       [:SYMBOL "foo"]
+       [:SYMBOL "bar"]]
+      [:NUMBER "2"]]])))
+
+(defest indexThenPropertyCall
+  (is
+   (=
+    (parse "foo[3].bar")
+    [:program
+     [:property_call
+      [:index_expression
+       [:SYMBOL "foo"]
+       [:NUMBER "3"]]
+      [:SYMBOL "bar"]]])))
+
+(deftest bracketsSkipNewlines
+  (is
+   (=
+    (parse "foo[\nbar\n]")
+    [:program
+     [:index_expression
+      [:SYMBOL "foo"]
+      [:SYMBOL "bar"]]])))
